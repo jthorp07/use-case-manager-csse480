@@ -1,0 +1,23 @@
+{
+    "projects": [
+        {
+            "project-one": {
+                "owner": "name or id",
+                "use-cases": [
+                    {
+                        "uc-name": "",
+                        "uc-process": "",
+                        "actors": ["", ""],
+                        "flows": [
+                            {
+                                "title": "Basic",
+                                "type": "basic",
+                                "steps": ["", ""]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}

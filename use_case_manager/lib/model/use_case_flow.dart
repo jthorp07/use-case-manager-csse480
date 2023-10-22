@@ -9,6 +9,7 @@ class UseCaseFlow implements Comparable<UseCaseFlow> {
   UseCaseFlow({required String title, required this.type}) : _title = title;
 
   String get title => _title;
+  List<String> get steps => List.from(_steps);
 
   void addStep(String step) {
     _steps.insert(_currentStep, step);
