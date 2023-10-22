@@ -1,26 +1,37 @@
 enum FlowType { basic, alternate, exception }
 
 class UseCaseFlow implements Comparable<UseCaseFlow> {
-  final String title;
-  final List<String> steps = List.empty(growable: true);
-  int currentStep = 0;
+  String _title;
+  final List<String> _steps = List.empty(growable: true);
+  int _currentStep = 0;
   final FlowType type;
 
-  UseCaseFlow({required this.title, required this.type});
+  UseCaseFlow({required String title, required this.type}) : _title = title;
+
+  String get title => _title;
 
   void addStep(String step) {
-    steps.add(step);
-    if (currentStep != steps.length) {}
+    _steps.insert(_currentStep, step);
+    _currentStep++;
+  }
+
+  void removeStep() {
+    _steps.removeAt(_currentStep);
+    prevStep();
   }
 
   void prevStep() {
-    if (currentStep == 0) return;
-    currentStep--;
+    if (_currentStep == 0) return;
+    _currentStep--;
   }
 
   void nextStep() {
-    if (currentStep == steps.length) return;
-    currentStep++;
+    if (_currentStep == _steps.length) return;
+    _currentStep++;
+  }
+
+  void setTitle(String newTitle) {
+    _title = newTitle;
   }
 
   @override
