@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "448618094949",
+    "project_id": "thorpj-henderm-csse480",
+    "storage_bucket": "thorpj-henderm-csse480.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:448618094949:android:496bc0f25d02124af8018c",
+        "android_client_info": {
+          "package_name": "com.example.use_case_manager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtPeMOXfK23QsiTYbBOcyr2EvrW5RoPqI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
