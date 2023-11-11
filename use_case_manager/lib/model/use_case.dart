@@ -6,14 +6,19 @@ import 'package:use_case_manager/model/use_case_flow.dart';
 
 class UseCase {
   final List<UseCaseFlow> _flows = List.empty(growable: true);
-  final String useCaseID;
+  final String projectTitle;
+  final String ownerUid;
+  String? documentId;
   int _currentFlow = 0;
   String _title;
   String _processName;
   final Set<Actor> _actors;
 
   UseCase(
-      {required this.useCaseID,
+      {
+      this.documentId,
+      required this.projectTitle,
+      required this.ownerUid,
       required String title,
       required String processName,
       required Set<Actor> actors})
@@ -23,7 +28,7 @@ class UseCase {
     _flows.add(UseCaseFlow(title: "Basic", type: FlowType.basic));
   }
 
-  UseCase.fromFirestore({required DocumentSnapshot doc}): this(useCaseID: doc.id, title: FirestoreModelUtils.getStringField(doc, ""), processName: FirestoreModelUtils.getStringField(doc, ""), actors: Set());
+  UseCase.fromFirestore({required DocumentSnapshot doc}): this(projectTitle: FirestoreModelUtils.getStringField(doc, fsUseCase_ProjectTitle), ownerUid: FirestoreModelUtils.getStringField(doc, fsUseCase_OwnerUid), title: FirestoreModelUtils.getStringField(doc, ""), processName: FirestoreModelUtils.getStringField(doc, ""), actors: Set());
 
   // ************************************
   //
@@ -99,12 +104,12 @@ class UseCase {
   }
 
   Map<String, Object> toMap() => {
-    useCaseID: useCaseID,
-    fsUseCaseActors: _actors,
-    fsUseCaseId: useCaseID,
-    fsUseCaseName: _title,
-    fsUseCaseProcess: _processName,
-    fsUseCaseProjectId: "blah"
+    documentId!: documentId!,
+    fsUseCase_Actors: _actors,
+    fsUseCase_OwnerUid: projectTitle,
+    fsUseCase_Title: _title,
+    fsUseCase_ProcessName: _processName,
+    fsUseCase_ProjectTitle: projectTitle,
   };
 
   // ************************************
