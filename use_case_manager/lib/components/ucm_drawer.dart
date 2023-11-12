@@ -22,12 +22,18 @@ class UCMDrawer extends StatelessWidget {
             decoration:
                 BoxDecoration(color: Theme.of(context).colorScheme.primary),
             child: const Text(
-              "Movie Quotes",
-              style: TextStyle(color: Colors.white, fontSize: 28.0),
+              "Use Case Manager",
+              style: TextStyle(
+                  color: UCMColorScheme.white,
+                  fontSize: 28.0,
+                  fontWeight: FontWeight.w700),
             ),
           ),
           ListTile(
-            title: const Text("Home"),
+            title: const Text(
+              "Home",
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
             leading: const Icon(Icons.home),
             onTap: () {
               Navigator.of(context).pop();
@@ -35,7 +41,10 @@ class UCMDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            title: const Text("My First Project"),
+            title: const Text(
+              "My First Project",
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
             leading: const Icon(Icons.home_repair_service),
             onTap: () {
               Navigator.of(context).pop();
