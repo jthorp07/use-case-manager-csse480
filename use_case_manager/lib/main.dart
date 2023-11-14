@@ -1,19 +1,25 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:use_case_manager/components/color_scheme.dart';
-import 'package:use_case_manager/pages/landing_page.dart';
+import 'package:use_case_manager/firebase_options.dart';
+import 'package:use_case_manager/pages/base_page.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
+  MyApp({super.key});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Use Case Manager',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
             seedColor: UCMColorScheme.roseRed,
@@ -22,7 +28,10 @@ class MyApp extends StatelessWidget {
             tertiary: UCMColorScheme.white),
         useMaterial3: true,
       ),
-      home: const UseCaseManagerLandingPage(),
+      initialRoute: "/landing",
+      routes: {
+        "/landing": (c) => const BasePage(),
+      },
     );
   }
 }
