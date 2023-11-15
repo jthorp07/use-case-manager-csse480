@@ -45,7 +45,12 @@ class UseCaseDocumentMngr {
 
   // Use Case methods
   void updateTopLevel({required UseCase useCase}) {
-    _ucRef.doc(useCase.documentId).update(useCase.toMap());
+    _ucRef.doc(useCase.documentId).update({
+      fsUseCase_OwnerUid: useCase.projectTitle,
+      fsUseCase_Title: useCase.title,
+      fsUseCase_ProcessName: useCase.processName,
+      fsUseCase_ProjectTitle: useCase.projectTitle,
+    });
   }
 
   // Actor methods
@@ -76,4 +81,6 @@ class UseCaseDocumentMngr {
       fsFlowSteps_Step: step,
     });
   }
+
+
 }

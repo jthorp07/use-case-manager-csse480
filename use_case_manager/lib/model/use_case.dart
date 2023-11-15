@@ -21,14 +21,14 @@ class UseCase {
       required this.ownerUid,
       required String title,
       required String processName,
-      required Set<Actor> actors})
+      Set<Actor>? actors})
       : _title = title,
-        _actors = actors,
+        _actors = actors ?? <Actor>{},
         _processName = processName {
     _flows.add(UseCaseFlow(title: "Basic", type: FlowType.basic));
   }
 
-  UseCase.fromFirestore({required DocumentSnapshot doc}): this(projectTitle: FirestoreModelUtils.getStringField(doc, fsUseCase_ProjectTitle), ownerUid: FirestoreModelUtils.getStringField(doc, fsUseCase_OwnerUid), title: FirestoreModelUtils.getStringField(doc, ""), processName: FirestoreModelUtils.getStringField(doc, ""), actors: Set());
+  UseCase.fromFirestore({required DocumentSnapshot doc}): this(projectTitle: FirestoreModelUtils.getStringField(doc, fsUseCase_ProjectTitle), ownerUid: FirestoreModelUtils.getStringField(doc, fsUseCase_OwnerUid), title: FirestoreModelUtils.getStringField(doc, ""), processName: FirestoreModelUtils.getStringField(doc, ""));
 
   // ************************************
   //
@@ -105,7 +105,6 @@ class UseCase {
 
   Map<String, Object> toMap() => {
     documentId!: documentId!,
-    fsUseCase_Actors: _actors,
     fsUseCase_OwnerUid: projectTitle,
     fsUseCase_Title: _title,
     fsUseCase_ProcessName: _processName,
