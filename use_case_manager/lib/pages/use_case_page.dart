@@ -4,14 +4,14 @@ import 'package:use_case_manager/components/ucm_drawer.dart';
 import 'package:use_case_manager/components/use_case_control.dart';
 import 'package:use_case_manager/components/use_case_list.dart';
 
-class MyWidget extends StatefulWidget {
-  const MyWidget({super.key});
+class UseCasePage extends StatefulWidget {
+  const UseCasePage({super.key});
 
   @override
-  State<MyWidget> createState() => _MyWidgetState();
+  State<UseCasePage> createState() => _UseCasePageState();
 }
 
-class _MyWidgetState extends State<MyWidget> {
+class _UseCasePageState extends State<UseCasePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
