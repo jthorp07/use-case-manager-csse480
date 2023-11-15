@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:use_case_manager/managers/use_case_document_manager.dart';
+import 'package:use_case_manager/model/firestore_model_utils.dart';
 
 class Actor {
   String? documentId;
@@ -8,6 +10,12 @@ class Actor {
   final String useCaseTitle;
 
   Actor({required String name, required this.projectTitle, required this.useCaseTitle, required this.ownerUid, this.documentId}) : _name = name;
+  Actor.fromFirestore({required DocumentSnapshot doc}): this(
+    documentId: doc.id,
+    name: FirestoreModelUtils.getStringField(doc, fsActors_Name), 
+    projectTitle: FirestoreModelUtils.getStringField(doc, fsActors_ProjectTitle), 
+    useCaseTitle: FirestoreModelUtils.getStringField(doc, fsActors_UseCaseTitle),
+    ownerUid: FirestoreModelUtils.getStringField(doc, fsActors_OwnerUid));
 
   String get name => _name;
 

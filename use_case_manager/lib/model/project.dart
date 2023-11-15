@@ -8,7 +8,12 @@ class Project {
   final String title;
 
   Project({required this.ownerUid, required this.title, this.documentId});
-  Project.fromFirestore({required DocumentSnapshot snapshot}): this(ownerUid: FirestoreModelUtils.getStringField(snapshot, fsProjectCollection_ownerUid), title: FirestoreModelUtils.getStringField(snapshot, fsProjectCollection_title), documentId: snapshot.id);
+  Project.fromFirestore({required DocumentSnapshot snapshot}): 
+    this(
+      ownerUid: FirestoreModelUtils.getStringField(snapshot, fsProjectCollection_ownerUid), 
+      title: FirestoreModelUtils.getStringField(snapshot, fsProjectCollection_title), 
+      documentId: snapshot.id,
+    );
 
   // ************************************
   //

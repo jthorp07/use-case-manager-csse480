@@ -25,7 +25,7 @@ class UseCase {
       : _title = title,
         _actors = actors ?? <Actor>{},
         _processName = processName {
-    _flows.add(UseCaseFlow(title: "Basic", type: FlowType.basic));
+    _flows.add(UseCaseFlow(title: 'Basic Flow', type: FlowType.basic, ownerUid: ownerUid, projectTitle: projectTitle, useCaseTitle: title));
   }
 
   UseCase.fromFirestore({required DocumentSnapshot doc}): this(projectTitle: FirestoreModelUtils.getStringField(doc, fsUseCase_ProjectTitle), ownerUid: FirestoreModelUtils.getStringField(doc, fsUseCase_OwnerUid), title: FirestoreModelUtils.getStringField(doc, ""), processName: FirestoreModelUtils.getStringField(doc, ""));
@@ -50,7 +50,7 @@ class UseCase {
 
   bool addFlow({required String flowName, required FlowType type}) {
     if (_hasFlow(flowName)) return false;
-    _flows.add(UseCaseFlow(title: flowName, type: type));
+    _flows.add(UseCaseFlow(title: flowName, type: type, ownerUid: ownerUid, projectTitle: projectTitle, useCaseTitle: title));
     _sortFlows();
     return true;
   }
