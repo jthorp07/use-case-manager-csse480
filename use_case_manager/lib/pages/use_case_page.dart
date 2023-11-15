@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:use_case_manager/components/color_scheme.dart';
 import 'package:use_case_manager/components/ucm_drawer.dart';
+import 'package:use_case_manager/components/use_case_control.dart';
+import 'package:use_case_manager/components/use_case_list.dart';
 
 class MyWidget extends StatefulWidget {
   const MyWidget({super.key});
@@ -40,7 +42,10 @@ class _MyWidgetState extends State<MyWidget> {
         child: Container(
           color: UCMColorScheme.darkGray,
           child: const Row(
-            children: [],
+            children: [
+              UseCaseList(),
+              UseCaseControl()
+            ],
           ),
         ),
       ),

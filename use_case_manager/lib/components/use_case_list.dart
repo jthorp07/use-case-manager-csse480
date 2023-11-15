@@ -2,14 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:use_case_manager/components/color_scheme.dart';
 
-class MyWidget extends StatefulWidget {
-  const MyWidget({super.key});
+class UseCaseList extends StatefulWidget {
+  const UseCaseList({super.key});
 
   @override
-  State<MyWidget> createState() => _MyWidgetState();
+  State<UseCaseList> createState() => _UseCaseListState();
 }
 
-class _MyWidgetState extends State<MyWidget> {
+class _UseCaseListState extends State<UseCaseList> {
 
   List<Widget> useCases = [
     const Text("Use Cases", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
