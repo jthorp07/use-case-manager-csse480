@@ -27,7 +27,8 @@ class ProjectCollectionManager {
   }
 
   Future<bool> hasProject({required String title}) {
-    return allUserProjects.where(fsProjectCollection_title, isEqualTo: title).get().then((snapshot) {
+    return _ref.where(fsProjectCollection_ownerUid, isEqualTo: AuthManager.instance.uid)
+      .withConverter(fromFirestore: (snapshot, _) => Project.fromFirestore(snapshot: snapshot), toFirestore: (project, _) => project.toMap()).where(fsProjectCollection_title, isEqualTo: title).get().then((snapshot) {
       print("Size: ${snapshot.size} >? 0");
       return snapshot.size > 0;
     },);
@@ -40,5 +41,11 @@ class ProjectCollectionManager {
   }
 
   String get selected => _selectedProjectTitle ?? "";
-  Query<Project> get allUserProjects => _ref.where(fsProjectCollection_ownerUid, isEqualTo: AuthManager.instance.uid).withConverter(fromFirestore: (snapshot, _) => Project.fromFirestore(snapshot: snapshot), toFirestore: (project, _) => project.toMap());
+  Future<List<Project>> get allUserProjects => _ref.where(fsProjectCollection_ownerUid, isEqualTo: AuthManager.instance.uid)
+  .withConverter(fromFirestore: (snapshot, _) => Project.fromFirestore(snapshot: snapshot), toFirestore: (project, _) => project.toMap())
+  .get().then((querySnap) {
+    return querySnap.docs.map((doc) {
+      return doc.data();
+    }).toList();
+  },);
 }
