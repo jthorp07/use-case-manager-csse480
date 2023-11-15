@@ -28,6 +28,50 @@ class _UseCaseControlState extends State<UseCaseControl> {
         }
       });
     }
-    return const Placeholder();
+    return Center(
+      child: Column(
+        children: [
+          const Text("Use Case Details"),
+          const SizedBox(),
+          Row(
+            children: [
+              Container(),
+              const SizedBox(),
+              Column(
+                children: [
+                  Container(),
+                  const SizedBox(),
+                  const Row(
+                    children: [
+                      Column(
+                        children: [
+                          Text("Toggle Flow"),
+                          Row(
+                            children: [
+
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(),
+                      Column(
+                        children: [
+                          Text("Toggle Flow"),
+                          Row(
+                            children: [
+
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
