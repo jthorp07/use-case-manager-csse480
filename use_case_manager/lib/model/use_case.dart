@@ -8,7 +8,7 @@ import 'package:use_case_manager/model/use_case_actor.dart';
 import 'package:use_case_manager/model/use_case_flow.dart';
 
 class UseCase {
-  final List<UseCaseFlow> _flows = List.empty(growable: true);
+  List<UseCaseFlow> _flows = List.empty(growable: true);
   String parentId;
   String? documentId;
   int _currentFlow = 0;
@@ -17,8 +17,7 @@ class UseCase {
   final Set<Actor> _actors;
 
   UseCase(
-      {
-      this.documentId,
+      {this.documentId,
       required this.parentId,
       required String title,
       required String processName,
@@ -27,25 +26,34 @@ class UseCase {
         _actors = actors ?? <Actor>{},
         _processName = processName {
     if (documentId != null) {
-      UseCaseDocumentMngr.instance.getAllActorsFromParent(docId: documentId!).then((actors) {
+      UseCaseDocumentMngr.instance
+          .getAllActorsFromParent(docId: documentId!)
+          .then((actors) {
         _actors.addAll(actors);
       });
-      UseCaseDocumentMngr.instance.getAllFlowsFromParent(docId: documentId!).then((flows) {
+      UseCaseDocumentMngr.instance
+          .getAllFlowsFromParent(docId: documentId!)
+          .then((flows) {
         _flows.addAll(flows);
         _sortFlows();
         if (_flows.isEmpty) {
-          _flows.add(UseCaseFlow(title: "Basic Flow", type: FlowType.basic, parentId: documentId!));
+          _flows.add(UseCaseFlow(
+              title: "Basic Flow",
+              type: FlowType.basic,
+              parentId: documentId!));
         }
       });
     }
   }
 
-  UseCase.fromFirestore({required DocumentSnapshot doc}): 
-    this( 
-      title: FirestoreModelUtils.getStringField(doc, fsUseCase_Title), 
-      processName: FirestoreModelUtils.getStringField(doc, fsUseCase_ProcessName),
-      parentId: FirestoreModelUtils.getStringField(doc, fsParentId),
-    );
+  UseCase.fromFirestore({required DocumentSnapshot doc})
+      : this(
+          documentId: doc.id,
+          title: FirestoreModelUtils.getStringField(doc, fsUseCase_Title),
+          processName:
+              FirestoreModelUtils.getStringField(doc, fsUseCase_ProcessName),
+          parentId: FirestoreModelUtils.getStringField(doc, fsParentId),
+        );
 
   // ************************************
   //
@@ -85,15 +93,15 @@ class UseCase {
     if (_currentFlow == _flows.length) {
       UseCaseDocumentMngr.instance.selectFlow(_flows[_currentFlow].documentId!);
       return;
-    } 
+    }
     _currentFlow++;
     UseCaseDocumentMngr.instance.selectFlow(_flows[_currentFlow].documentId!);
   }
 
   void prevFlow() {
-    if (_currentFlow == 0) { 
+    if (_currentFlow == 0) {
       UseCaseDocumentMngr.instance.selectFlow(_flows[_currentFlow].documentId!);
-      return; 
+      return;
     }
     _currentFlow--;
     UseCaseDocumentMngr.instance.selectFlow(_flows[_currentFlow].documentId!);
@@ -108,14 +116,18 @@ class UseCase {
   }
 
   void setTitle(String newTitle) async {
-    UseCaseDocumentMngr.instance.updateUseCase(docId: documentId!, title: newTitle, processName: _processName).then((success) {
+    UseCaseDocumentMngr.instance
+        .updateUseCase(
+            docId: documentId!, title: newTitle, processName: _processName)
+        .then((success) {
       if (success) _title = newTitle;
     });
-    
   }
 
   Future<void> setProcessName(String newName) async {
-    await UseCaseDocumentMngr.instance.updateUseCase(docId: documentId!, title: _title, processName: newName).then((success) {
+    await UseCaseDocumentMngr.instance
+        .updateUseCase(docId: documentId!, title: _title, processName: newName)
+        .then((success) {
       if (success) _processName = newName;
     });
   }
@@ -133,11 +145,11 @@ class UseCase {
   }
 
   Map<String, Object> toMap() => {
-    documentId!: documentId!,
-    fsParentId: parentId,
-    fsUseCase_Title: _title,
-    fsUseCase_ProcessName: _processName,
-  };
+        documentId!: documentId!,
+        fsParentId: parentId,
+        fsUseCase_Title: _title,
+        fsUseCase_ProcessName: _processName,
+      };
 
   // ************************************
   //
@@ -153,5 +165,10 @@ class UseCase {
       if (flow.title == flowTitle) return true;
     }
     return false;
+  }
+
+  set setFlow(List<UseCaseFlow> newFLows) {
+    _flows.clear();
+    _flows.addAll(newFLows);
   }
 }

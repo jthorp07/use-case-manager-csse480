@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:use_case_manager/managers/auth_manager.dart';
 import 'package:use_case_manager/managers/project_collection_manager.dart';
 import 'package:use_case_manager/managers/use_case_collection_manager.dart';
@@ -26,9 +27,8 @@ const fsFlowSteps_Index = "stepIndex";
 const fsFlowSteps_Step = "step";
 
 class UseCaseDocumentMngr {
-
   static final instance = UseCaseDocumentMngr._privateConstructor();
-  
+
   // Collection References
   final CollectionReference _ucRef;
   final CollectionReference _actorRef;
@@ -36,30 +36,34 @@ class UseCaseDocumentMngr {
   final CollectionReference _flowStepRef;
 
   // Current Selections
-  String? _selectedUseCase;
-  String? _selectedFlow;
-  String? _selectedFlowStep;
+  final ValueNotifier<String> _selectedUseCase = ValueNotifier('');
+  final ValueNotifier<String> _selectedFlow = ValueNotifier('');
+  final ValueNotifier<String> _selectedFlowStep = ValueNotifier('');
 
   void selectCase(String docId) {
-    _selectedUseCase = docId;
+    _selectedUseCase.value = docId;
   }
 
   void selectFlow(String docId) {
-    _selectedFlow = docId;
+    _selectedFlow.value = docId;
   }
 
   void selectFlowStep(String docId) {
-    _selectedFlowStep = docId;
+    _selectedFlowStep.value = docId;
   }
 
-  UseCaseDocumentMngr._privateConstructor(): 
-    _ucRef = FirebaseFirestore.instance.collection(fsUseCase_Collection), 
-    _actorRef = FirebaseFirestore.instance.collection(fsActorsCollection), 
-    _flowRef = FirebaseFirestore.instance.collection(fsFlowsCollection),
-    _flowStepRef = FirebaseFirestore.instance.collection(fsFlowStepsCollection);
+  UseCaseDocumentMngr._privateConstructor()
+      : _ucRef = FirebaseFirestore.instance.collection(fsUseCase_Collection),
+        _actorRef = FirebaseFirestore.instance.collection(fsActorsCollection),
+        _flowRef = FirebaseFirestore.instance.collection(fsFlowsCollection),
+        _flowStepRef =
+            FirebaseFirestore.instance.collection(fsFlowStepsCollection);
 
   // Use Case methods
-  Future<bool> updateUseCase({required String docId, required String title, required String processName}) async {
+  Future<bool> updateUseCase(
+      {required String docId,
+      required String title,
+      required String processName}) async {
     if (await UseCaseCollectionMngr.instance.hasUseCase(title: title)) {
       return false;
     }
@@ -82,7 +86,6 @@ class UseCaseDocumentMngr {
         removeFlow(docId: f.documentId!);
       }
     });
-    
   }
 
   // Actor methods
@@ -95,13 +98,16 @@ class UseCaseDocumentMngr {
 
   Future<List<Actor>> get ucActors {
     return _actorRef
-      .where(fsParentId, isEqualTo: _selectedUseCase)
-      .withConverter(fromFirestore: (doc, _) => Actor.fromFirestore(doc: doc), toFirestore: (actor, _) => actor.toMap())
-      .get().then((query) {
-        return query.docs.map((doc) {
-          return doc.data();
-        }).toList();
-      });
+        .where(fsParentId, isEqualTo: _selectedUseCase)
+        .withConverter(
+            fromFirestore: (doc, _) => Actor.fromFirestore(doc: doc),
+            toFirestore: (actor, _) => actor.toMap())
+        .get()
+        .then((query) {
+      return query.docs.map((doc) {
+        return doc.data();
+      }).toList();
+    });
   }
 
   void removeActor({required String docId}) {
@@ -110,11 +116,13 @@ class UseCaseDocumentMngr {
 
   Future<List<Actor>> getAllActorsFromParent({required String docId}) {
     return _actorRef
-      .where(fsParentId, isEqualTo: docId)
-      .withConverter(fromFirestore: (doc, _) => Actor.fromFirestore(doc: doc), toFirestore: (step, _) => step.toMap())
-      .get().then((query) => query.docs.map((doc) => doc.data()).toList());
+        .where(fsParentId, isEqualTo: docId)
+        .withConverter(
+            fromFirestore: (doc, _) => Actor.fromFirestore(doc: doc),
+            toFirestore: (step, _) => step.toMap())
+        .get()
+        .then((query) => query.docs.map((doc) => doc.data()).toList());
   }
-    
 
   // Flow methods
   void addFlow({required FlowType type, required String name}) async {
@@ -125,7 +133,10 @@ class UseCaseDocumentMngr {
     });
   }
 
-  Future<bool> updateFlow({required String docId, required FlowType type, required String title}) async {
+  Future<bool> updateFlow(
+      {required String docId,
+      required FlowType type,
+      required String title}) async {
     if (await _hasFlow(title: title)) {
       return false;
     }
@@ -148,15 +159,19 @@ class UseCaseDocumentMngr {
     }
   }
 
-  Future<List<UseCaseFlow>> getAllFlowsFromParent({required String docId}) {
-    return _flowRef
-      .where(fsParentId, isEqualTo: docId)
-      .withConverter(fromFirestore: (doc, _) => UseCaseFlow.fromFirestore(doc: doc), toFirestore: (step, _) => step.toMap())
-      .get().then((query) => query.docs.map((doc) => doc.data()).toList());
-  }
+  // Future<List<UseCaseFlow>> getAllFlowsFromParent({required String docId}) {
+  //   return _flowRef
+  //       .where(fsParentId, isEqualTo: docId)
+  //       .withConverter(
+  //           fromFirestore: (doc, _) => UseCaseFlow.fromFirestore(doc: doc),
+  //           toFirestore: (step, _) => step.toMap())
+  //       .get()
+  //       .then((query) => query.docs.map((doc) => doc.data()).toList());
+  // }
 
   Future<bool> _hasFlow({required String title}) async {
-    List<UseCaseFlow> flows = await getAllFlowsFromParent(docId: _selectedUseCase!);
+    List<UseCaseFlow> flows =
+        await getAllFlowsFromParent(docId: _selectedUseCase.value!);
     for (UseCaseFlow f in flows) {
       if (f.title == title) {
         return true;
@@ -174,7 +189,8 @@ class UseCaseDocumentMngr {
     });
   }
 
-  void updateFlowStep({required String docId, required String contents, required int index}) {
+  void updateFlowStep(
+      {required String docId, required String contents, required int index}) {
     _flowStepRef.doc(docId).update({
       fsFlowSteps_Index: index,
       fsFlowSteps_Step: contents,
@@ -194,8 +210,23 @@ class UseCaseDocumentMngr {
 
   Future<List<FlowStep>> getAllStepsFromParent({required String docId}) {
     return _flowStepRef
-      .where(fsParentId, isEqualTo: docId)
-      .withConverter(fromFirestore: (doc, _) => FlowStep.fromFirestore(doc: doc), toFirestore: (step, _) => step.toMap())
-      .get().then((query) => query.docs.map((doc) => doc.data()).toList());
+        .where(fsParentId, isEqualTo: docId)
+        .withConverter(
+            fromFirestore: (doc, _) => FlowStep.fromFirestore(doc: doc),
+            toFirestore: (step, _) => step.toMap())
+        .get()
+        .then((query) => query.docs.map((doc) => doc.data()).toList());
   }
+
+  Stream<List<UseCaseFlow>> getAllFlowsFromParent({required String docId}) {
+    return _flowRef
+        .where(fsParentId, isEqualTo: docId)
+        .withConverter(
+            fromFirestore: (doc, _) => UseCaseFlow.fromFirestore(doc: doc),
+            toFirestore: (flow, _) => flow.toMap())
+        .snapshots()
+        .map((query) => query.docs.map((snap) => snap.data()).toList());
+  }
+
+  ValueNotifier<String?> get selectedUseCase => _selectedUseCase;
 }

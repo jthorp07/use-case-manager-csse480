@@ -79,7 +79,8 @@ class _UseCaseManagerLandingPageState extends State<UseCaseManagerLandingPage> {
                                 return ProjectList(
                                     projects: snapshot.data ?? []);
                               } else if (snapshot.hasError) {
-                                debugPrint(snapshot.error.toString());
+                                debugPrint(
+                                    "Error: ${snapshot.error.toString()}");
                                 return const Text("Error!!!");
                               } else {
                                 return const CircularProgressIndicator();

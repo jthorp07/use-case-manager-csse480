@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:use_case_manager/managers/auth_manager.dart';
 import 'package:use_case_manager/managers/project_collection_manager.dart';
 import 'package:use_case_manager/managers/use_case_document_manager.dart';
@@ -15,7 +16,7 @@ class UseCaseCollectionMngr {
       UseCaseCollectionMngr._privateConstructor();
 
   UseCaseCollectionMngr._privateConstructor()
-      : _ref = FirebaseFirestore.instance.collection("UseCases");
+      : _ref = FirebaseFirestore.instance.collection(fsUseCase_Collection);
 
   Future<bool> add({required String title, required String processName}) async {
     if (await instance.hasUseCase(title: title) == false) {
@@ -46,17 +47,20 @@ class UseCaseCollectionMngr {
     );
   }
 
-  Future<List<UseCase>> get useCasesForCurrentProject => _ref
-          .where(fsParentId,
-              isEqualTo: ProjectCollectionManager.instance.selectedId)
-          .withConverter(
-              fromFirestore: (snapshot, _) =>
-                  UseCase.fromFirestore(doc: snapshot),
-              toFirestore: (useCase, _) => useCase.toMap())
-          .get()
-          .then((querySnap) {
-        return querySnap.docs.map((doc) {
-          return doc.data();
-        }).toList();
-      });
+  Stream<List<UseCase>> get useCasesForCurrentProject => _ref
+      .where(fsParentId,
+          isEqualTo: ProjectCollectionManager.instance.selectedId)
+      .withConverter(
+          fromFirestore: (snapshot, _) => UseCase.fromFirestore(doc: snapshot),
+          toFirestore: (useCase, _) => useCase.toMap())
+      .snapshots()
+      .map((query) => query.docs.map((snap) => snap.data()).toList());
+
+  Stream<UseCase> get currentUseCaseDocument => _ref
+      .doc(UseCaseDocumentMngr.instance.selectedUseCase.value)
+      .withConverter(
+          fromFirestore: (snapshot, _) => UseCase.fromFirestore(doc: snapshot),
+          toFirestore: (useCase, _) => useCase.toMap())
+      .snapshots()
+      .map((event) => event.data()!);
 }

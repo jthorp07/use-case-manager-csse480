@@ -5,6 +5,7 @@ import 'package:use_case_manager/model/login_argument.dart';
 import 'package:use_case_manager/pages/email_auth_page.dart';
 import 'package:use_case_manager/pages/landing_page.dart';
 import 'package:use_case_manager/pages/page_outline.dart';
+import 'package:use_case_manager/pages/use_case_page.dart';
 
 class BasePage extends StatefulWidget {
   const BasePage({super.key});
@@ -46,6 +47,8 @@ class _BasePageSate extends State<BasePage> {
                 )
               ],
             );
+          case '/use_cases':
+            child = const UseCasePage();
           default:
             throw Exception('Invalid route: ${settings.name}');
         }

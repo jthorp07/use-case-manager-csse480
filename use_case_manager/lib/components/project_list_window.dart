@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:use_case_manager/components/color_scheme.dart';
+import 'package:use_case_manager/managers/project_collection_manager.dart';
 import 'package:use_case_manager/model/project.dart';
 
 class ProjectList extends StatelessWidget {
@@ -7,7 +8,7 @@ class ProjectList extends StatelessWidget {
   const ProjectList({super.key, required this.projects});
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
+    return LayoutBuilder(builder: (context1, constraints) {
       return Container(
         constraints: BoxConstraints(maxWidth: constraints.maxWidth / 1.5),
         decoration: BoxDecoration(
@@ -31,14 +32,21 @@ class ProjectList extends StatelessWidget {
                     ),
                     itemBuilder: (ct, n) {
                       return ListTile(
-                        onTap: () {},
+                        onTap: () {
+                          ProjectCollectionManager.instance
+                              .selectProject(projects[n], () {
+                            Navigator.of(context1).pushNamed("/use_cases");
+                          });
+                        },
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5)),
                         tileColor: UCMColorScheme.babyGray,
                         hoverColor: UCMColorScheme.darkGray,
                         title: Center(
                           child: Text(
-                            projects.isNotEmpty ? projects[n].title : "Proj $n",
+                            projects.isNotEmpty
+                                ? projects[n].title
+                                : "Project $n",
                             style: const TextStyle(color: UCMColorScheme.white),
                           ),
                         ),
