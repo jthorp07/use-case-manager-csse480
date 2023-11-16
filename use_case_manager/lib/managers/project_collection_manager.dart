@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:use_case_manager/managers/auth_manager.dart';
+import 'package:use_case_manager/managers/use_case_collection_manager.dart';
+import 'package:use_case_manager/managers/use_case_document_manager.dart';
 import 'package:use_case_manager/model/project.dart';
 import 'package:use_case_manager/model/use_case.dart';
 
@@ -26,6 +28,15 @@ class ProjectCollectionManager {
       fsProjectCollection_title: title,
     });
     return true;
+  }
+
+  void delete({required String docId}) {
+    _ref.doc(docId).delete();
+    UseCaseCollectionMngr.instance.getAllCasesFromParent(docId: docId).forEach((useCaseList) {
+      for (UseCase uc in useCaseList) {
+        UseCaseDocumentMngr.instance.removeUseCase(docId: uc.documentId!);
+      }
+    });
   }
 
   Future<bool> hasProject({required String title}) {

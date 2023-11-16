@@ -47,6 +47,16 @@ class UseCaseCollectionMngr {
     );
   }
 
+  Stream<List<UseCase>> getAllCasesFromParent({required String docId}) {
+    return _ref
+        .where(fsParentId, isEqualTo: docId)
+        .withConverter(
+            fromFirestore: (doc, _) => UseCase.fromFirestore(doc: doc),
+            toFirestore: (flow, _) => flow.toMap())
+        .snapshots()
+        .map((query) => query.docs.map((snap) => snap.data()).toList());
+  }
+
   Stream<List<UseCase>> get useCasesForCurrentProject => _ref
       .where(fsParentId,
           isEqualTo: ProjectCollectionManager.instance.selectedId)
