@@ -7,7 +7,7 @@ import 'package:use_case_manager/model/use_case.dart';
 const fsUseCase_Collection = "UseCases";
 const fsUseCase_Actors = "actors";
 const fsUseCase_Title = "uc-name";
-const fsUseCase_ProcessName = "us-process";
+const fsUseCase_ProcessName = "uc-process";
 
 class UseCaseCollectionMngr {
   final CollectionReference _ref;
