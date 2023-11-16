@@ -71,8 +71,8 @@ class _UseCaseManagerLandingPageState extends State<UseCaseManagerLandingPage> {
                   Flexible(
                     flex: 4,
                     child: AuthManager.instance.isSignedIn
-                        ? FutureBuilder<List<Project>>(
-                            future: ProjectCollectionManager
+                        ? StreamBuilder<List<Project>>(
+                            stream: ProjectCollectionManager
                                 .instance.allUserProjects,
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {

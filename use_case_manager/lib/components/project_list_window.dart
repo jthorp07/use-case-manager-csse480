@@ -77,10 +77,7 @@ class _ProjectListState extends State<ProjectList> {
                         shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5)))),
                     onPressed: () {
-                      showNewProjectDialog(context, () {
-                        Navigator.of(context).pop();
-                        Navigator.pushNamed(context, "landing/chooseLogin");
-                      });
+                      showNewProjectDialog(context, () {});
                     },
                     child: const Text(
                       "New Project",

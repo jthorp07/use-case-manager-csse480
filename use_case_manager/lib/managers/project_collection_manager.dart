@@ -58,21 +58,14 @@ class ProjectCollectionManager {
 
   String get selected => _selectedProjectTitle ?? "";
   String get selectedId => _selectedProjectId ?? "";
-  Future<List<Project>> get allUserProjects => _ref
-          .where(fsProjectCollection_ownerUid,
-              isEqualTo: AuthManager.instance.uid)
-          .withConverter(
-              fromFirestore: (snapshot, _) =>
-                  Project.fromFirestore(snapshot: snapshot),
-              toFirestore: (project, _) => project.toMap())
-          .get()
-          .then(
-        (querySnap) {
-          return querySnap.docs.map((doc) {
-            return doc.data();
-          }).toList();
-        },
-      );
+  Stream<List<Project>> get allUserProjects => _ref
+      .where(fsProjectCollection_ownerUid, isEqualTo: AuthManager.instance.uid)
+      .withConverter(
+          fromFirestore: (snapshot, _) =>
+              Project.fromFirestore(snapshot: snapshot),
+          toFirestore: (project, _) => project.toMap())
+      .snapshots()
+      .map((query) => query.docs.map((snap) => snap.data()).toList());
 
   Future<Project> get selectedProject => _ref
           .where(fsProjectCollection_ownerUid,
