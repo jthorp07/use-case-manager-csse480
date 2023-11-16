@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:use_case_manager/components/color_scheme.dart';
+import 'package:use_case_manager/model/project.dart';
 
 class ProjectList extends StatelessWidget {
-  final List<String> projNames;
-  const ProjectList({super.key, required this.projNames});
+  final List<Project> projects;
+  const ProjectList({super.key, required this.projects});
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
@@ -24,7 +25,7 @@ class ProjectList extends StatelessWidget {
                   type: MaterialType.transparency,
                   child: ListView.separated(
                     scrollDirection: Axis.vertical,
-                    itemCount: projNames.length,
+                    itemCount: projects.length,
                     separatorBuilder: (context, index) => const SizedBox(
                       height: 10,
                     ),
@@ -37,7 +38,7 @@ class ProjectList extends StatelessWidget {
                         hoverColor: UCMColorScheme.darkGray,
                         title: Center(
                           child: Text(
-                            projNames[n],
+                            projects.isNotEmpty ? projects[n].title : "Proj $n",
                             style: const TextStyle(color: UCMColorScheme.white),
                           ),
                         ),

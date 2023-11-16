@@ -3,6 +3,8 @@ import 'package:use_case_manager/components/color_scheme.dart';
 import 'package:use_case_manager/components/login_window.dart';
 import 'package:use_case_manager/components/project_list_window.dart';
 import 'package:use_case_manager/managers/auth_manager.dart';
+import 'package:use_case_manager/managers/project_collection_manager.dart';
+import 'package:use_case_manager/model/project.dart';
 
 class UseCaseManagerLandingPage extends StatefulWidget {
   const UseCaseManagerLandingPage({super.key});
@@ -69,7 +71,21 @@ class _UseCaseManagerLandingPageState extends State<UseCaseManagerLandingPage> {
                   Flexible(
                     flex: 4,
                     child: AuthManager.instance.isSignedIn
-                        ? ProjectList(projNames: projNames)
+                        ? FutureBuilder<List<Project>>(
+                            future: ProjectCollectionManager
+                                .instance.allUserProjects,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return ProjectList(
+                                    projects: snapshot.data ?? []);
+                              } else if (snapshot.hasError) {
+                                debugPrint(snapshot.error.toString());
+                                return const Text("Error!!!");
+                              } else {
+                                return const CircularProgressIndicator();
+                              }
+                            },
+                          )
                         : const LoginWindow(),
                   ),
                 ],
