@@ -15,6 +15,8 @@ class UseCaseList extends StatefulWidget {
 }
 
 class _UseCaseListState extends State<UseCaseList> {
+  final processController = TextEditingController();
+  final nameController = TextEditingController();
   List<Widget> _useCases(List<UseCase> ucs) {
     List<Widget> ucButtons = List.generate(ucs.length, (index) {
       UseCase uc = ucs[index];
@@ -42,6 +44,27 @@ class _UseCaseListState extends State<UseCaseList> {
         ),
       );
     });
+    ucButtons.add(TextButton(
+      style: const ButtonStyle(
+            overlayColor: MaterialStatePropertyAll(UCMColorScheme.darkGray),
+            backgroundColor: MaterialStatePropertyAll(UCMColorScheme.roseRed),
+      ),
+      onPressed: () {
+          showNewUseCaseDialog(context, () {
+            setState(() {
+              
+            });
+          });
+      },
+      child: const Text(
+          "New Use Case",
+          style: TextStyle(
+            color: UCMColorScheme.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 30,
+          ),
+      ),
+    ));
     return [
       const Text(
         "Use Cases",
@@ -100,5 +123,54 @@ class _UseCaseListState extends State<UseCaseList> {
         ),
       ),
     ));
+  }
+
+  void showNewUseCaseDialog(BuildContext context, Function onPressedCallback) {
+    debugPrint("new project dialog");
+    showDialog(
+        context: context,
+        builder: (context) {
+          nameController.text = "";
+          processController.text = "";
+          return AlertDialog(
+            title: const Text("New Project"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: "Use Case Name:",
+                  ),
+                ),
+                TextFormField(
+                  controller: processController,
+                  decoration: const InputDecoration(
+                    labelText: "Process Name:",
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () {
+                  UseCaseCollectionMngr.instance
+                      .add(title: nameController.text, processName: processController.text)
+                      .then((success) {
+                    onPressedCallback();
+                  });
+                  Navigator.pop(context);
+                },
+                child: const Text("Create"),
+              ),
+            ],
+          );
+        });
   }
 }
