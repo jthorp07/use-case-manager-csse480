@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:use_case_manager/managers/auth_manager.dart';
 import 'package:use_case_manager/managers/project_collection_manager.dart';
 import 'package:use_case_manager/managers/use_case_collection_manager.dart';
+import 'package:use_case_manager/model/flow_step.dart';
 import 'package:use_case_manager/model/use_case.dart';
 import 'package:use_case_manager/model/use_case_actor.dart';
 import 'package:use_case_manager/model/use_case_flow.dart';
@@ -38,8 +39,6 @@ class UseCaseDocumentMngr {
   String? _selectedUseCase;
   String? _selectedFlow;
 
-  UseCase? _currentUseCase;
-
   UseCaseDocumentMngr._privateConstructor(): 
     _ucRef = FirebaseFirestore.instance.collection(fsUseCase_Collection), 
     _actorRef = FirebaseFirestore.instance.collection(fsActorsCollection), 
@@ -47,14 +46,6 @@ class UseCaseDocumentMngr {
     _flowStepRef = FirebaseFirestore.instance.collection(fsFlowStepsCollection);
 
   // Use Case methods
-  Future<UseCase?> selectUseCase({required String docId}) {
-    _selectedUseCase = docId;
-    return _ucRef.doc(docId).withConverter(fromFirestore: (doc, _) => UseCase.fromFirestore(doc: doc), toFirestore: (uc, _) => uc.toMap()).get().then((doc) {
-      UseCase? uc = doc.data();
-      _currentUseCase = uc;
-      return uc;
-    });
-  }
 
   void updateTopLevel({required UseCase useCase}) {
     _ucRef.doc(useCase.documentId).update({
@@ -63,19 +54,26 @@ class UseCaseDocumentMngr {
     });
   }
 
-  Future<UseCase?> get currentUseCase async {
-    if (_currentUseCase == null) {
-      return _ucRef.doc(_selectedUseCase ?? "").withConverter(fromFirestore: (doc, _) => UseCase.fromFirestore(doc: doc), toFirestore: (uc, _) => uc.toMap()).get().then((doc) => doc.data());
-    } else {
-      return _currentUseCase;
-    }
-  } 
+  void removeUseCase({required String docId}) async {
+    _ucRef.doc(docId).delete();
+    getAllActorsFromParent(docId: docId).then((actorList) {
+      for (Actor a in actorList) {
+        removeActor(docId: a.documentId!);
+      }
+    });
+    getAllFlowsFromParent(docId: docId).then((flowList) {
+      for (UseCaseFlow f in flowList) {
+        removeFlow(docId: f.documentId!);
+      }
+    });
+    
+  }
 
   // Actor methods
   void addActor({required String name}) {
     _actorRef.add({
       fsActors_Name: name,
-      fsParentId: _currentUseCase!.documentId,
+      fsParentId: _selectedUseCase,
     });
   }
 
@@ -89,6 +87,17 @@ class UseCaseDocumentMngr {
         }).toList();
       });
   }
+
+  void removeActor({required String docId}) {
+    _actorRef.doc(docId).delete();
+  }
+
+  Future<List<Actor>> getAllActorsFromParent({required String docId}) {
+    return _actorRef
+      .where(fsParentId, isEqualTo: docId)
+      .withConverter(fromFirestore: (doc, _) => Actor.fromFirestore(doc: doc), toFirestore: (step, _) => step.toMap())
+      .get().then((query) => query.docs.map((doc) => doc.data()).toList());
+  }
     
 
   // Flow methods
@@ -100,6 +109,25 @@ class UseCaseDocumentMngr {
     });
   }
 
+  void removeFlow({required String docId}) {
+    _flowRef.doc(docId).delete();
+    removeAllStepsFromParent(docId: docId);
+  }
+
+  void removeAllFlowsFromParent({required String docId}) async {
+    List<UseCaseFlow> flows = await getAllFlowsFromParent(docId: docId);
+    for (UseCaseFlow flow in flows) {
+      removeFlow(docId: flow.documentId!);
+    }
+  }
+
+  Future<List<UseCaseFlow>> getAllFlowsFromParent({required String docId}) {
+    return _flowRef
+      .where(fsParentId, isEqualTo: docId)
+      .withConverter(fromFirestore: (doc, _) => UseCaseFlow.fromFirestore(doc: doc), toFirestore: (step, _) => step.toMap())
+      .get().then((query) => query.docs.map((doc) => doc.data()).toList());
+  }
+
   // Flow step methods
   void addFlowStep({required String step, required int index}) {
     _flowStepRef.add({
@@ -107,5 +135,23 @@ class UseCaseDocumentMngr {
       fsFlowSteps_Step: step,
       fsParentId: _selectedFlow
     });
+  }
+
+  void removeAllStepsFromParent({required String docId}) async {
+    List<FlowStep> steps = await getAllStepsFromParent(docId: docId);
+    for (FlowStep s in steps) {
+      removeStep(docId: s.documentId!);
+    }
+  }
+
+  void removeStep({required String docId}) {
+    _flowStepRef.doc(docId).delete();
+  }
+
+  Future<List<FlowStep>> getAllStepsFromParent({required String docId}) {
+    return _flowStepRef
+      .where(fsParentId, isEqualTo: docId)
+      .withConverter(fromFirestore: (doc, _) => FlowStep.fromFirestore(doc: doc), toFirestore: (step, _) => step.toMap())
+      .get().then((query) => query.docs.map((doc) => doc.data()).toList());
   }
 }
