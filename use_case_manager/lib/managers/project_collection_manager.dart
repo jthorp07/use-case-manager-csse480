@@ -16,13 +16,13 @@ class ProjectCollectionManager {
 
   ProjectCollectionManager._privateConstructor(): _ref = FirebaseFirestore.instance.collection(fsProjectCollection);
 
-  Future<bool> add({required Project project}) async {
-    if (await instance.hasProject(title: project.title)) {
+  Future<bool> add({required String title}) async {
+    if (await instance.hasProject(title: title)) {
       return false;
     }
     _ref.add({
-      fsProjectCollection_ownerUid: project.ownerUid,
-      fsProjectCollection_title: project.title,
+      fsProjectCollection_ownerUid: AuthManager.instance.uid,
+      fsProjectCollection_title: title,
     });
     return true;
   }
