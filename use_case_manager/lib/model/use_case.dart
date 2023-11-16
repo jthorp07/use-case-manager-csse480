@@ -31,9 +31,9 @@ class UseCase {
           .then((actors) {
         _actors.addAll(actors);
       });
-      UseCaseDocumentMngr.instance
-          .getAllFlowsFromParent(docId: documentId!)
-          .then((flows) {
+      Stream<List<UseCaseFlow>> flowStream = UseCaseDocumentMngr.instance
+          .getAllFlowsFromParent(docId: documentId!);
+      flowStream.forEach((flows) {
         _flows.addAll(flows);
         sortFlows();
         if (_flows.isEmpty) {
