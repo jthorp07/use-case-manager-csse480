@@ -38,6 +38,19 @@ class UseCaseDocumentMngr {
   // Current Selections
   String? _selectedUseCase;
   String? _selectedFlow;
+  String? _selectedFlowStep;
+
+  void selectCase(String docId) {
+    _selectedUseCase = docId;
+  }
+
+  void selectFlow(String docId) {
+    _selectedFlow = docId;
+  }
+
+  void selectFlowStep(String docId) {
+    _selectedFlowStep = docId;
+  }
 
   UseCaseDocumentMngr._privateConstructor(): 
     _ucRef = FirebaseFirestore.instance.collection(fsUseCase_Collection), 
@@ -46,12 +59,15 @@ class UseCaseDocumentMngr {
     _flowStepRef = FirebaseFirestore.instance.collection(fsFlowStepsCollection);
 
   // Use Case methods
-
-  void updateTopLevel({required UseCase useCase}) {
-    _ucRef.doc(useCase.documentId).update({
-      fsUseCase_Title: useCase.title,
-      fsUseCase_ProcessName: useCase.processName,
+  Future<bool> updateUseCase({required String docId, required String title, required String processName}) async {
+    if (await UseCaseCollectionMngr.instance.hasUseCase(title: title)) {
+      return false;
+    }
+    _ucRef.doc(docId).update({
+      fsUseCase_Title: title,
+      fsUseCase_ProcessName: processName,
     });
+    return true;
   }
 
   void removeUseCase({required String docId}) async {
@@ -109,6 +125,17 @@ class UseCaseDocumentMngr {
     });
   }
 
+  Future<bool> updateFlow({required String docId, required FlowType type, required String title}) async {
+    if (await _hasFlow(title: title)) {
+      return false;
+    }
+    _flowRef.doc(docId).update({
+      fsFlows_FlowName: title,
+      fsFlows_FlowType: UseCaseFlow.typeToString(type),
+    });
+    return true;
+  }
+
   void removeFlow({required String docId}) {
     _flowRef.doc(docId).delete();
     removeAllStepsFromParent(docId: docId);
@@ -128,12 +155,29 @@ class UseCaseDocumentMngr {
       .get().then((query) => query.docs.map((doc) => doc.data()).toList());
   }
 
+  Future<bool> _hasFlow({required String title}) async {
+    List<UseCaseFlow> flows = await getAllFlowsFromParent(docId: _selectedUseCase!);
+    for (UseCaseFlow f in flows) {
+      if (f.title == title) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // Flow step methods
   void addFlowStep({required String step, required int index}) {
     _flowStepRef.add({
       fsFlowSteps_Index: index,
       fsFlowSteps_Step: step,
       fsParentId: _selectedFlow
+    });
+  }
+
+  void updateFlowStep({required String docId, required String contents, required int index}) {
+    _flowStepRef.doc(docId).update({
+      fsFlowSteps_Index: index,
+      fsFlowSteps_Step: contents,
     });
   }
 

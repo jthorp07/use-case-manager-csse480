@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:use_case_manager/managers/use_case_collection_manager.dart';
 import 'package:use_case_manager/managers/use_case_document_manager.dart';
@@ -24,7 +26,18 @@ class UseCase {
       : _title = title,
         _actors = actors ?? <Actor>{},
         _processName = processName {
-    _flows.add(UseCaseFlow(title: "Basic Flow", type: FlowType.basic, parentId: documentId!));
+    if (documentId != null) {
+      UseCaseDocumentMngr.instance.getAllActorsFromParent(docId: documentId!).then((actors) {
+        _actors.addAll(actors);
+      });
+      UseCaseDocumentMngr.instance.getAllFlowsFromParent(docId: documentId!).then((flows) {
+        _flows.addAll(flows);
+        _sortFlows();
+        if (_flows.isEmpty) {
+          _flows.add(UseCaseFlow(title: "Basic Flow", type: FlowType.basic, parentId: documentId!));
+        }
+      });
+    }
   }
 
   UseCase.fromFirestore({required DocumentSnapshot doc}): 
@@ -54,6 +67,7 @@ class UseCase {
 
   bool addFlow({required String flowName, required FlowType type}) {
     if (_hasFlow(flowName)) return false;
+    UseCaseDocumentMngr.instance.addFlow(type: type, name: flowName);
     _flows.add(UseCaseFlow(title: title, type: type, parentId: documentId!));
     _sortFlows();
     return true;
@@ -68,13 +82,21 @@ class UseCase {
   }
 
   void nextFlow() {
-    if (_currentFlow == _flows.length) return;
+    if (_currentFlow == _flows.length) {
+      UseCaseDocumentMngr.instance.selectFlow(_flows[_currentFlow].documentId!);
+      return;
+    } 
     _currentFlow++;
+    UseCaseDocumentMngr.instance.selectFlow(_flows[_currentFlow].documentId!);
   }
 
   void prevFlow() {
-    if (_currentFlow == 0) return;
+    if (_currentFlow == 0) { 
+      UseCaseDocumentMngr.instance.selectFlow(_flows[_currentFlow].documentId!);
+      return; 
+    }
     _currentFlow--;
+    UseCaseDocumentMngr.instance.selectFlow(_flows[_currentFlow].documentId!);
   }
 
   void nextStep() {
@@ -85,12 +107,17 @@ class UseCase {
     _flows[_currentFlow].nextStep();
   }
 
-  void setTitle(String newTitle) {
-    _title = newTitle;
+  void setTitle(String newTitle) async {
+    UseCaseDocumentMngr.instance.updateUseCase(docId: documentId!, title: newTitle, processName: _processName).then((success) {
+      if (success) _title = newTitle;
+    });
+    
   }
 
-  void setProcessName(String newName) {
-    _processName = newName;
+  Future<void> setProcessName(String newName) async {
+    await UseCaseDocumentMngr.instance.updateUseCase(docId: documentId!, title: _title, processName: newName).then((success) {
+      if (success) _processName = newName;
+    });
   }
 
   void addStep(String step) {
@@ -101,10 +128,8 @@ class UseCase {
     _flows[_currentFlow].removeStep();
   }
 
-  bool changeFlowTitle(String newTitle) {
-    if (_hasFlow(newTitle)) return false;
+  void changeFlowTitle(String newTitle) {
     _flows[_currentFlow].setTitle(newTitle);
-    return true;
   }
 
   Map<String, Object> toMap() => {

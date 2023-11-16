@@ -15,19 +15,7 @@ class _UseCaseControlState extends State<UseCaseControl> {
 
   @override
   Widget build(BuildContext context) {
-    if (uc == null) {
-      UseCaseDocumentMngr.instance.currentUseCase.then((val) {
-        if (val != null) {
-          setState(() {
-            uc = val;
-          });
-        } else {
-          // Failed to load UC - abort page load
-          Navigator.of(context).pop();
-          print("Use case failed to retrieve");
-        }
-      });
-    }
+    
     return Center(
       child: Column(
         children: [

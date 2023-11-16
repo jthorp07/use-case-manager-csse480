@@ -18,7 +18,7 @@ class UseCaseCollectionMngr {
       : _ref = FirebaseFirestore.instance.collection("UseCases");
 
   Future<bool> add({required String title, required String processName}) async {
-    if (await instance._hasUseCase(title: title) == false) {
+    if (await instance.hasUseCase(title: title) == false) {
       instance._ref.add({
         fsUseCase_Title: title,
         fsUseCase_ProcessName: processName,
@@ -29,7 +29,7 @@ class UseCaseCollectionMngr {
     return false;
   }
 
-  Future<bool> _hasUseCase({required String title}) async {
+  Future<bool> hasUseCase({required String title}) async {
     return _ref
         .where(fsParentId,
             isEqualTo: ProjectCollectionManager.instance.selectedId)
