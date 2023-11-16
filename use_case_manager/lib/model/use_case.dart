@@ -35,7 +35,7 @@ class UseCase {
           .getAllFlowsFromParent(docId: documentId!)
           .then((flows) {
         _flows.addAll(flows);
-        _sortFlows();
+        sortFlows();
         if (_flows.isEmpty) {
           _flows.add(UseCaseFlow(
               title: "Basic Flow",
@@ -77,7 +77,7 @@ class UseCase {
     if (_hasFlow(flowName)) return false;
     UseCaseDocumentMngr.instance.addFlow(type: type, name: flowName);
     _flows.add(UseCaseFlow(title: title, type: type, parentId: documentId!));
-    _sortFlows();
+    sortFlows();
     return true;
   }
 
@@ -156,7 +156,7 @@ class UseCase {
   // Private Methods
   //
   // ************************************
-  void _sortFlows() {
+  void sortFlows() {
     _flows.sort((a, b) => a.compareTo(b));
   }
 
