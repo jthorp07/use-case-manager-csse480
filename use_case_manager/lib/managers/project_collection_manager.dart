@@ -11,6 +11,7 @@ class ProjectCollectionManager {
 
   final CollectionReference _ref;
   String? _selectedProjectTitle;
+  String? _selectedProjectId;
   static final ProjectCollectionManager instance = ProjectCollectionManager._privateConstructor();
 
   ProjectCollectionManager._privateConstructor(): _ref = FirebaseFirestore.instance.collection(fsProjectCollection);
@@ -37,7 +38,9 @@ class ProjectCollectionManager {
   void selectProject(Project project) async {
     if (await hasProject(title: project.title)) {
       _selectedProjectTitle = project.title;
+      _selectedProjectId = (await selectedProject).documentId;
     }
+
   }
 
   String get selected => _selectedProjectTitle ?? "";
@@ -48,4 +51,12 @@ class ProjectCollectionManager {
       return doc.data();
     }).toList();
   },);
+
+  Future<Project> get selectedProject => 
+    _ref.where(fsProjectCollection_ownerUid, isEqualTo: AuthManager.instance.uid)
+      .where(fsProjectCollection_title, isEqualTo: _selectedProjectTitle)
+      .withConverter(fromFirestore: (snapshot, _) => Project.fromFirestore(snapshot: snapshot), toFirestore: (project, _) => project.toMap())
+      .get().then((query) {
+        return query.docs.first.data();
+      });
 }
