@@ -81,7 +81,8 @@ class UseCaseDocumentMngr {
         removeActor(docId: a.documentId!);
       }
     });
-    getAllFlowsFromParent(docId: docId).then((flowList) {
+    Stream<List<UseCaseFlow>> stream = getAllFlowsFromParent(docId: docId);
+    stream.forEach((flowList) {
       for (UseCaseFlow f in flowList) {
         removeFlow(docId: f.documentId!);
       }
@@ -153,10 +154,12 @@ class UseCaseDocumentMngr {
   }
 
   void removeAllFlowsFromParent({required String docId}) async {
-    List<UseCaseFlow> flows = await getAllFlowsFromParent(docId: docId);
-    for (UseCaseFlow flow in flows) {
-      removeFlow(docId: flow.documentId!);
-    }
+    Stream<List<UseCaseFlow>> stream = getAllFlowsFromParent(docId: docId);
+    stream.forEach((flows) {
+      for (UseCaseFlow flow in flows) {
+        removeFlow(docId: flow.documentId!);
+      }
+    });
   }
 
   // Future<List<UseCaseFlow>> getAllFlowsFromParent({required String docId}) {
@@ -169,15 +172,17 @@ class UseCaseDocumentMngr {
   //       .then((query) => query.docs.map((doc) => doc.data()).toList());
   // }
 
-  Future<bool> _hasFlow({required String title}) async {
-    List<UseCaseFlow> flows =
-        await getAllFlowsFromParent(docId: _selectedUseCase.value!);
-    for (UseCaseFlow f in flows) {
-      if (f.title == title) {
-        return true;
+  Future<bool> _hasFlow({required String title}) {
+    bool ret = false;
+    Stream<List<UseCaseFlow>> stream =
+        getAllFlowsFromParent(docId: _selectedUseCase.value!);
+    return stream.forEach((flows) {
+      for (UseCaseFlow f in flows) {
+        if (f.title == title) {
+          ret = true;
+        }
       }
-    }
-    return false;
+    }).then((value) => ret);
   }
 
   // Flow step methods
