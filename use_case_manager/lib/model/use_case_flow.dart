@@ -6,7 +6,6 @@ import 'package:use_case_manager/model/flow_step.dart';
 enum FlowType { basic, alternate, exception }
 
 class UseCaseFlow implements Comparable<UseCaseFlow> {
-
   String? documentId;
   String _title;
   final List<FlowStep> _steps = List.empty(growable: true);
@@ -14,35 +13,43 @@ class UseCaseFlow implements Comparable<UseCaseFlow> {
   final FlowType type;
   String parentId;
 
-  UseCaseFlow({required String title, required this.type, required this.parentId, this.documentId}) : _title = title {
+  UseCaseFlow(
+      {required String title,
+      required this.type,
+      required this.parentId,
+      this.documentId})
+      : _title = title {
     if (documentId != null) {
-      UseCaseDocumentMngr.instance.getAllStepsFromParent(docId: documentId!).forEach((steps) {
+      UseCaseDocumentMngr.instance
+          .getAllStepsFromParent(docId: documentId!)
+          .forEach((steps) {
         if (steps.isEmpty) return;
         _steps.addAll(steps);
         steps.sort((a, b) => a.compareTo(b));
       });
     }
   }
-  UseCaseFlow.fromFirestore({required DocumentSnapshot doc}):
-    this(
-      documentId: doc.id,
-      title: FirestoreModelUtils.getStringField(doc, fsFlows_FlowName),
-      type: stringToType(FirestoreModelUtils.getStringField(doc, fsFlows_FlowType)),
-      parentId: FirestoreModelUtils.getStringField(doc, fsParentId)
-    );
+  UseCaseFlow.fromFirestore({required DocumentSnapshot doc})
+      : this(
+            documentId: doc.id,
+            title: FirestoreModelUtils.getStringField(doc, fsFlows_FlowName),
+            type: stringToType(
+                FirestoreModelUtils.getStringField(doc, fsFlows_FlowType)),
+            parentId: FirestoreModelUtils.getStringField(doc, fsParentId));
 
   Map<String, Object> toMap() => {
-    documentId!: documentId!,
-    fsFlows_FlowName: _title,
-    fsFlows_FlowType: typeToString(type),
-  };
+        documentId!: documentId!,
+        fsFlows_FlowName: _title,
+        fsFlows_FlowType: typeToString(type),
+      };
 
   String get title => _title;
-  List<String> get steps => List.from(_steps);
+  List<FlowStep> get steps => List.from(_steps);
 
   void addStep(String step) {
     UseCaseDocumentMngr.instance.addFlowStep(step: step, index: _currentStep);
-    _steps.insert(_currentStep, FlowStep(contents: step, parentId: documentId!, index: _currentStep));
+    _steps.insert(_currentStep,
+        FlowStep(contents: step, parentId: documentId!, index: _currentStep));
     _currentStep++;
     shiftStepsFrom(_currentStep);
     selectStep(_steps[_currentStep].documentId ?? "");
@@ -52,6 +59,12 @@ class UseCaseFlow implements Comparable<UseCaseFlow> {
     for (int i = index; i < _steps.length; i++) {
       _steps[i].setIndex(i);
     }
+  }
+
+  set setSteps(List<FlowStep> newSteps) {
+    _steps.clear();
+    _steps.addAll(newSteps);
+    _steps.sort();
   }
 
   // TODO: Might introduce a race condition (line 53/55)
@@ -66,7 +79,7 @@ class UseCaseFlow implements Comparable<UseCaseFlow> {
     if (_currentStep == 0) {
       selectStep(_steps[_currentStep].documentId ?? "");
       return;
-    } 
+    }
     _currentStep--;
     selectStep(_steps[_currentStep].documentId ?? "");
   }
@@ -74,13 +87,15 @@ class UseCaseFlow implements Comparable<UseCaseFlow> {
   void nextStep() {
     if (_currentStep == _steps.length) {
       selectStep(_steps[_currentStep].documentId ?? "");
-    } 
+    }
     _currentStep++;
     selectStep(_steps[_currentStep].documentId ?? "");
   }
 
   void setTitle(String newTitle) {
-    UseCaseDocumentMngr.instance.updateFlow(docId: documentId!, type: type, title: newTitle).then((success) {
+    UseCaseDocumentMngr.instance
+        .updateFlow(docId: documentId!, type: type, title: newTitle)
+        .then((success) {
       if (success) _title = newTitle;
     });
   }
@@ -125,7 +140,7 @@ class UseCaseFlow implements Comparable<UseCaseFlow> {
       case 'exception':
         return FlowType.exception;
       default:
-        return FlowType.basic;  
+        return FlowType.basic;
     }
   }
 }

@@ -61,6 +61,9 @@ class _UseCaseControlState extends State<UseCaseControl> {
                                         .getAllStepsFromParent(
                                             docId: uc!.currentFlow.documentId!),
                                 builder: (context, flowSteps) {
+                                  if (flowSteps.data != null) {
+                                    uc?.currentFlow.setSteps = flowSteps.data!;
+                                  }
                                   return Column(
                                     children: [
                                       const Expanded(
@@ -96,10 +99,11 @@ class _UseCaseControlState extends State<UseCaseControl> {
                                                             .updateUseCase(
                                                                 docId: uc!
                                                                     .documentId!,
-                                                                title: newName,
-                                                                processName:
-                                                                    ucProcessController
-                                                                        .text);
+                                                                title:
+                                                                    ucNameController
+                                                                        .text,
+                                                                processName: uc
+                                                                    .processName);
                                                       },
                                                       style: const TextStyle(
                                                           color: UCMColorScheme
@@ -126,6 +130,18 @@ class _UseCaseControlState extends State<UseCaseControl> {
                                                       style: const TextStyle(
                                                           color: UCMColorScheme
                                                               .white),
+                                                      onFieldSubmitted:
+                                                          (newProcName) {
+                                                        UseCaseDocumentMngr
+                                                            .instance
+                                                            .updateUseCase(
+                                                                docId: uc!
+                                                                    .documentId!,
+                                                                title: uc.title,
+                                                                processName:
+                                                                    ucProcessController
+                                                                        .text);
+                                                      },
                                                       controller:
                                                           ucProcessController,
                                                       decoration:
@@ -224,10 +240,10 @@ class _UseCaseControlState extends State<UseCaseControl> {
                                                           buff.write(
                                                               "Steps:\n");
                                                           int dex = 0;
-                                                          uc?.currentFlowSteps
+                                                          uc?.currentFlow.steps
                                                               .forEach((step) {
                                                             buff.write(
-                                                                "\t\t\t\t\t$dex. $step");
+                                                                "\t\t\t\t\t$dex. ${step.contents}\n");
                                                             dex++;
                                                           });
                                                           return RichText(

@@ -42,6 +42,8 @@ class FlowStep implements Comparable<FlowStep> {
         .updateFlowStep(docId: documentId!, contents: _contents, index: index);
   }
 
+  String get contents => _contents;
+
   @override
   int compareTo(FlowStep other) {
     return _index - other.index;

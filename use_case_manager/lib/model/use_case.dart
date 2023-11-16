@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:use_case_manager/managers/use_case_collection_manager.dart';
 import 'package:use_case_manager/managers/use_case_document_manager.dart';
 import 'package:use_case_manager/model/firestore_model_utils.dart';
+import 'package:use_case_manager/model/flow_step.dart';
 import 'package:use_case_manager/model/use_case_actor.dart';
 import 'package:use_case_manager/model/use_case_flow.dart';
 
@@ -65,7 +66,7 @@ class UseCase {
   String get processName => _processName;
   List<Actor> get actors => List.from(_actors);
   UseCaseFlow get currentFlow => _flows[_currentFlow];
-  List<String> get currentFlowSteps => currentFlow.steps;
+  List<FlowStep> get currentFlowSteps => currentFlow.steps;
 
   // ************************************
   //
