@@ -3,9 +3,18 @@ import 'package:use_case_manager/components/color_scheme.dart';
 import 'package:use_case_manager/managers/project_collection_manager.dart';
 import 'package:use_case_manager/model/project.dart';
 
-class ProjectList extends StatelessWidget {
+class ProjectList extends StatefulWidget {
   final List<Project> projects;
   const ProjectList({super.key, required this.projects});
+  @override
+  State<ProjectList> createState() => _ProjectListState();
+}
+
+class _ProjectListState extends State<ProjectList> {
+
+  
+  final TextEditingController projectController = TextEditingController();
+  
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context1, constraints) {
@@ -26,7 +35,7 @@ class ProjectList extends StatelessWidget {
                   type: MaterialType.transparency,
                   child: ListView.separated(
                     scrollDirection: Axis.vertical,
-                    itemCount: projects.length,
+                    itemCount: widget.projects.length,
                     separatorBuilder: (context, index) => const SizedBox(
                       height: 10,
                     ),
@@ -34,7 +43,7 @@ class ProjectList extends StatelessWidget {
                       return ListTile(
                         onTap: () {
                           ProjectCollectionManager.instance
-                              .selectProject(projects[n], () {
+                              .selectProject(widget.projects[n], () {
                             Navigator.of(context1).pushNamed("/use_cases");
                           });
                         },
@@ -44,8 +53,8 @@ class ProjectList extends StatelessWidget {
                         hoverColor: UCMColorScheme.darkGray,
                         title: Center(
                           child: Text(
-                            projects.isNotEmpty
-                                ? projects[n].title
+                            widget.projects.isNotEmpty
+                                ? widget.projects[n].title
                                 : "Project $n",
                             style: const TextStyle(color: UCMColorScheme.white),
                           ),
@@ -69,7 +78,13 @@ class ProjectList extends StatelessWidget {
                             UCMColorScheme.roseRed),
                         shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5)))),
-                    onPressed: () {},
+                    onPressed: () {
+                      showNewProjectDialog(context, () {
+                        setState(() {
+                          
+                        });
+                      });
+                    },
                     child: const Text(
                       "New Project",
                       style: TextStyle(color: UCMColorScheme.white),
@@ -82,5 +97,46 @@ class ProjectList extends StatelessWidget {
         ),
       );
     });
+  }
+
+  void showNewProjectDialog(BuildContext context, Function onPressedCallback) {
+    debugPrint("new project dialog");
+    showDialog(
+        context: context,
+        builder: (context) {
+          projectController.text = "";
+          return AlertDialog(
+            title: Text("New Project"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: projectController,
+                  decoration: const InputDecoration(
+                    labelText: "Project Name:",
+                  ),
+                ),
+                
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () {
+                  ProjectCollectionManager.instance.add(title: projectController.text).then((success) {
+                    onPressedCallback();
+                  });
+                  Navigator.pop(context);
+                },
+                child: const Text("Create"),
+              ),
+            ],
+          );
+        });
   }
 }
