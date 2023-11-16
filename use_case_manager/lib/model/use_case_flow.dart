@@ -16,8 +16,9 @@ class UseCaseFlow implements Comparable<UseCaseFlow> {
 
   UseCaseFlow({required String title, required this.type, required this.parentId, this.documentId}) : _title = title {
     if (documentId != null) {
-      UseCaseDocumentMngr.instance.getAllStepsFromParent(docId: documentId!).then((steps) {
+      UseCaseDocumentMngr.instance.getAllStepsFromParent(docId: documentId!).forEach((steps) {
         if (steps.isEmpty) return;
+        _steps.addAll(steps);
         steps.sort((a, b) => a.compareTo(b));
       });
     }

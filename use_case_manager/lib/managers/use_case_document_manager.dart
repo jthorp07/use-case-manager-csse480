@@ -203,10 +203,12 @@ class UseCaseDocumentMngr {
   }
 
   void removeAllStepsFromParent({required String docId}) async {
-    List<FlowStep> steps = await getAllStepsFromParent(docId: docId);
-    for (FlowStep s in steps) {
-      removeStep(docId: s.documentId!);
-    }
+    Stream<List<FlowStep>> stream = getAllStepsFromParent(docId: docId);
+    stream.forEach((steps) {
+      for (FlowStep s in steps) {
+        removeStep(docId: s.documentId!);
+      }
+    });
   }
 
   void removeStep({required String docId}) {
