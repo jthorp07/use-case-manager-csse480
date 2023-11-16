@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:use_case_manager/managers/use_case_collection_manager.dart';
+import 'package:use_case_manager/managers/use_case_document_manager.dart';
 import 'package:use_case_manager/model/firestore_model_utils.dart';
 import 'package:use_case_manager/model/use_case_actor.dart';
 import 'package:use_case_manager/model/use_case_flow.dart';
 
 class UseCase {
   final List<UseCaseFlow> _flows = List.empty(growable: true);
-  final String projectTitle;
-  final String ownerUid;
+  String parentId;
   String? documentId;
   int _currentFlow = 0;
   String _title;
@@ -17,18 +17,22 @@ class UseCase {
   UseCase(
       {
       this.documentId,
-      required this.projectTitle,
-      required this.ownerUid,
+      required this.parentId,
       required String title,
       required String processName,
       Set<Actor>? actors})
       : _title = title,
         _actors = actors ?? <Actor>{},
         _processName = processName {
-    _flows.add(UseCaseFlow(title: 'Basic Flow', type: FlowType.basic, ownerUid: ownerUid, projectTitle: projectTitle, useCaseTitle: title));
+    _flows.add(UseCaseFlow(title: "Basic Flow", type: FlowType.basic, parentId: documentId!));
   }
 
-  UseCase.fromFirestore({required DocumentSnapshot doc}): this(projectTitle: FirestoreModelUtils.getStringField(doc, fsUseCase_ProjectTitle), ownerUid: FirestoreModelUtils.getStringField(doc, fsUseCase_OwnerUid), title: FirestoreModelUtils.getStringField(doc, ""), processName: FirestoreModelUtils.getStringField(doc, ""));
+  UseCase.fromFirestore({required DocumentSnapshot doc}): 
+    this( 
+      title: FirestoreModelUtils.getStringField(doc, fsUseCase_Title), 
+      processName: FirestoreModelUtils.getStringField(doc, fsUseCase_ProcessName),
+      parentId: FirestoreModelUtils.getStringField(doc, fsParentId),
+    );
 
   // ************************************
   //
@@ -50,7 +54,7 @@ class UseCase {
 
   bool addFlow({required String flowName, required FlowType type}) {
     if (_hasFlow(flowName)) return false;
-    _flows.add(UseCaseFlow(title: flowName, type: type, ownerUid: ownerUid, projectTitle: projectTitle, useCaseTitle: title));
+    _flows.add(UseCaseFlow(title: title, type: type, parentId: documentId!));
     _sortFlows();
     return true;
   }
@@ -105,10 +109,9 @@ class UseCase {
 
   Map<String, Object> toMap() => {
     documentId!: documentId!,
-    fsUseCase_OwnerUid: projectTitle,
+    fsParentId: parentId,
     fsUseCase_Title: _title,
     fsUseCase_ProcessName: _processName,
-    fsUseCase_ProjectTitle: projectTitle,
   };
 
   // ************************************

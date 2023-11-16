@@ -5,17 +5,14 @@ import 'package:use_case_manager/model/firestore_model_utils.dart';
 class Actor {
   String? documentId;
   String _name;
-  final String ownerUid;
-  final String projectTitle;
-  final String useCaseTitle;
+  String parentId;
 
-  Actor({required String name, required this.projectTitle, required this.useCaseTitle, required this.ownerUid, this.documentId}) : _name = name;
+  Actor({required String name, required this.parentId, this.documentId}) : _name = name;
   Actor.fromFirestore({required DocumentSnapshot doc}): this(
     documentId: doc.id,
     name: FirestoreModelUtils.getStringField(doc, fsActors_Name), 
-    projectTitle: FirestoreModelUtils.getStringField(doc, fsActors_ProjectTitle), 
-    useCaseTitle: FirestoreModelUtils.getStringField(doc, fsActors_UseCaseTitle),
-    ownerUid: FirestoreModelUtils.getStringField(doc, fsActors_OwnerUid));
+    parentId: FirestoreModelUtils.getStringField(doc, fsParentId),
+  );
 
   String get name => _name;
 
@@ -26,9 +23,7 @@ class Actor {
   Map<String, Object> toMap() {
     return {
       documentId!: documentId!,
-      fsActors_OwnerUid: ownerUid,
-      fsActors_ProjectTitle: projectTitle,
-      fsActors_UseCaseTitle: useCaseTitle,
+      fsParentId: parentId,
       fsActors_Name: _name,
     };
   }
