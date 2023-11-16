@@ -11,10 +11,8 @@ class ProjectList extends StatefulWidget {
 }
 
 class _ProjectListState extends State<ProjectList> {
-
-  
   final TextEditingController projectController = TextEditingController();
-  
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context1, constraints) {
@@ -80,9 +78,8 @@ class _ProjectListState extends State<ProjectList> {
                             borderRadius: BorderRadius.circular(5)))),
                     onPressed: () {
                       showNewProjectDialog(context, () {
-                        setState(() {
-                          
-                        });
+                        Navigator.of(context).pop();
+                        Navigator.pushNamed(context, "landing/chooseLogin");
                       });
                     },
                     child: const Text(
@@ -116,7 +113,6 @@ class _ProjectListState extends State<ProjectList> {
                     labelText: "Project Name:",
                   ),
                 ),
-                
               ],
             ),
             actions: [
@@ -128,7 +124,9 @@ class _ProjectListState extends State<ProjectList> {
               ),
               TextButton(
                 onPressed: () {
-                  ProjectCollectionManager.instance.add(title: projectController.text).then((success) {
+                  ProjectCollectionManager.instance
+                      .add(title: projectController.text)
+                      .then((success) {
                     onPressedCallback();
                   });
                   Navigator.pop(context);
