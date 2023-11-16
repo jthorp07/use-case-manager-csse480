@@ -90,7 +90,7 @@ class UseCase {
   }
 
   void nextFlow() {
-    if (_currentFlow == _flows.length) {
+    if (_currentFlow == _flows.length - 1) {
       UseCaseDocumentMngr.instance.selectFlow(_flows[_currentFlow].documentId!);
       return;
     }

@@ -213,14 +213,14 @@ class UseCaseDocumentMngr {
     _flowStepRef.doc(docId).delete();
   }
 
-  Future<List<FlowStep>> getAllStepsFromParent({required String docId}) {
+  Stream<List<FlowStep>> getAllStepsFromParent({required String docId}) {
     return _flowStepRef
         .where(fsParentId, isEqualTo: docId)
         .withConverter(
             fromFirestore: (doc, _) => FlowStep.fromFirestore(doc: doc),
-            toFirestore: (step, _) => step.toMap())
-        .get()
-        .then((query) => query.docs.map((doc) => doc.data()).toList());
+            toFirestore: (flow, _) => flow.toMap())
+        .snapshots()
+        .map((query) => query.docs.map((snap) => snap.data()).toList());
   }
 
   Stream<List<UseCaseFlow>> getAllFlowsFromParent({required String docId}) {

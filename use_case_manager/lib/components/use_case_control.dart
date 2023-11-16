@@ -13,10 +13,14 @@ class UseCaseControl extends StatefulWidget {
 }
 
 class _UseCaseControlState extends State<UseCaseControl> {
-  UseCase? uc;
+  UseCase? useCase;
 
   @override
   Widget build(BuildContext context) {
+    if (useCase?.documentId !=
+        UseCaseDocumentMngr.instance.selectedUseCase.value) {
+      useCase = null;
+    }
     return Center(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(10, 20, 20, 20),
@@ -33,8 +37,8 @@ class _UseCaseControlState extends State<UseCaseControl> {
                         ? null
                         : UseCaseCollectionMngr.instance.currentUseCaseDocument,
                     builder: (context, snap) {
-                      UseCase? uc;
-                      if (snap.data != null) uc = snap!.data;
+                      UseCase? uc = useCase;
+                      if (snap.data != null && uc == null) uc = snap!.data;
                       return StreamBuilder(
                           stream: UseCaseDocumentMngr.instance
                               .getAllFlowsFromParent(docId: curUC!),
@@ -50,347 +54,389 @@ class _UseCaseControlState extends State<UseCaseControl> {
                                 TextEditingController();
                             final ucExceptionController =
                                 TextEditingController();
-                            return Column(
-                              children: [
-                                const Expanded(
-                                  flex: 1,
-                                  child: Text(
-                                    "Use Case Details",
-                                    style: TextStyle(
-                                      color: UCMColorScheme.white,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 30,
-                                    ),
-                                  ),
-                                ),
-                                const Divider(
-                                  color: UCMColorScheme.darkGray,
-                                  thickness: 15,
-                                ),
-                                Expanded(
-                                  flex: 15,
-                                  child: Row(
+                            return StreamBuilder(
+                                stream: uc?.currentFlow.documentId == null
+                                    ? null
+                                    : UseCaseDocumentMngr.instance
+                                        .getAllStepsFromParent(
+                                            docId: uc!.currentFlow.documentId!),
+                                builder: (context, flowSteps) {
+                                  return Column(
                                     children: [
-                                      Expanded(
+                                      const Expanded(
                                         flex: 1,
-                                        child: Center(
-                                          child: Column(
-                                            children: [
-                                              TextFormField(
-                                                enabled: uc != null,
-                                                onFieldSubmitted: (newName) {
-                                                  UseCaseDocumentMngr.instance
-                                                      .updateUseCase(
-                                                          docId:
-                                                              uc!.documentId!,
-                                                          title: newName,
-                                                          processName:
-                                                              ucProcessController
-                                                                  .text);
-                                                },
-                                                style: const TextStyle(
-                                                    color:
-                                                        UCMColorScheme.white),
-                                                controller: ucNameController,
-                                                decoration:
-                                                    const InputDecoration(
-                                                  border: OutlineInputBorder(),
-                                                  labelText: "Use Case Name",
-                                                  labelStyle: TextStyle(
-                                                      color:
-                                                          UCMColorScheme.white),
-                                                ),
-                                              ),
-                                              const SizedBox(
-                                                height: 10,
-                                              ),
-                                              TextFormField(
-                                                enabled: uc != null,
-                                                style: const TextStyle(
-                                                    color:
-                                                        UCMColorScheme.white),
-                                                controller: ucProcessController,
-                                                decoration:
-                                                    const InputDecoration(
-                                                  border: OutlineInputBorder(),
-                                                  labelText: "Process Name",
-                                                  labelStyle: TextStyle(
-                                                      color:
-                                                          UCMColorScheme.white),
-                                                ),
-                                              ),
-                                              const SizedBox(
-                                                height: 10,
-                                              ),
-                                              TextFormField(
-                                                enabled: uc != null,
-                                                controller: ucStepController,
-                                                decoration:
-                                                    const InputDecoration(
-                                                  border: OutlineInputBorder(),
-                                                  labelText: "New Step",
-                                                  labelStyle: TextStyle(
-                                                      color:
-                                                          UCMColorScheme.white),
-                                                ),
-                                              ),
-                                              const SizedBox(
-                                                height: 10,
-                                              ),
-                                              TextFormField(
-                                                enabled: uc != null,
-                                                controller:
-                                                    ucAlternateController,
-                                                decoration:
-                                                    const InputDecoration(
-                                                  border: OutlineInputBorder(),
-                                                  labelText:
-                                                      "New Alternate Flow",
-                                                  hintText: "",
-                                                  labelStyle: TextStyle(
-                                                      color:
-                                                          UCMColorScheme.white),
-                                                ),
-                                              ),
-                                              const SizedBox(
-                                                height: 10,
-                                              ),
-                                              TextFormField(
-                                                enabled: uc != null,
-                                                controller:
-                                                    ucExceptionController,
-                                                decoration:
-                                                    const InputDecoration(
-                                                  border: OutlineInputBorder(),
-                                                  labelText:
-                                                      "New Exception Flow",
-                                                  labelStyle: TextStyle(
-                                                      color:
-                                                          UCMColorScheme.white),
-                                                ),
-                                              ),
-                                            ],
+                                        child: Text(
+                                          "Use Case Details",
+                                          style: TextStyle(
+                                            color: UCMColorScheme.white,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 30,
                                           ),
                                         ),
                                       ),
-                                      const VerticalDivider(
+                                      const Divider(
                                         color: UCMColorScheme.darkGray,
-                                        thickness: 20,
+                                        thickness: 15,
                                       ),
                                       Expanded(
-                                        flex: 3,
-                                        child: Column(
+                                        flex: 15,
+                                        child: Row(
                                           children: [
-                                            curUC == ""
-                                                ? const Placeholder()
-                                                : StreamBuilder(
-                                                    stream: UseCaseCollectionMngr
-                                                        .instance
-                                                        .currentUseCaseDocument,
-                                                    builder: (context, snap) {
-                                                      return StreamBuilder(
-                                                          stream: UseCaseDocumentMngr
-                                                              .instance
-                                                              .getAllFlowsFromParent(
-                                                                  docId: curUC),
-                                                          builder: (context2,
-                                                              flowSnaps) {
-                                                            return RichText(
-                                                              text: TextSpan(
-                                                                text:
-                                                                    "Use Case: ${uc?.title ?? ""}\n"
-                                                                    "Process: ${uc?.processName ?? ""}\n"
-                                                                    "Current Flow: ${uc?.currentFlow.title}\n"
-                                                                    "Steps:\n"
-                                                                    "\t\t\t\t\t1. User enters question prompt",
-                                                                style: const TextStyle(
-                                                                    fontSize:
-                                                                        20,
-                                                                    color: UCMColorScheme
-                                                                        .white),
-                                                              ),
-                                                            );
+                                            Expanded(
+                                              flex: 1,
+                                              child: Center(
+                                                child: Column(
+                                                  children: [
+                                                    TextFormField(
+                                                      enabled: uc != null,
+                                                      onFieldSubmitted:
+                                                          (newName) {
+                                                        UseCaseDocumentMngr
+                                                            .instance
+                                                            .updateUseCase(
+                                                                docId: uc!
+                                                                    .documentId!,
+                                                                title: newName,
+                                                                processName:
+                                                                    ucProcessController
+                                                                        .text);
+                                                      },
+                                                      style: const TextStyle(
+                                                          color: UCMColorScheme
+                                                              .white),
+                                                      controller:
+                                                          ucNameController,
+                                                      decoration:
+                                                          const InputDecoration(
+                                                        border:
+                                                            OutlineInputBorder(),
+                                                        labelText:
+                                                            "Use Case Name",
+                                                        labelStyle: TextStyle(
+                                                            color:
+                                                                UCMColorScheme
+                                                                    .white),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    TextFormField(
+                                                      enabled: uc != null,
+                                                      style: const TextStyle(
+                                                          color: UCMColorScheme
+                                                              .white),
+                                                      controller:
+                                                          ucProcessController,
+                                                      decoration:
+                                                          const InputDecoration(
+                                                        border:
+                                                            OutlineInputBorder(),
+                                                        labelText:
+                                                            "Process Name",
+                                                        labelStyle: TextStyle(
+                                                            color:
+                                                                UCMColorScheme
+                                                                    .white),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    TextFormField(
+                                                      enabled: uc != null,
+                                                      controller:
+                                                          ucStepController,
+                                                      decoration:
+                                                          const InputDecoration(
+                                                        border:
+                                                            OutlineInputBorder(),
+                                                        labelText: "New Step",
+                                                        labelStyle: TextStyle(
+                                                            color:
+                                                                UCMColorScheme
+                                                                    .white),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    TextFormField(
+                                                      enabled: uc != null,
+                                                      controller:
+                                                          ucAlternateController,
+                                                      decoration:
+                                                          const InputDecoration(
+                                                        border:
+                                                            OutlineInputBorder(),
+                                                        labelText:
+                                                            "New Alternate Flow",
+                                                        hintText: "",
+                                                        labelStyle: TextStyle(
+                                                            color:
+                                                                UCMColorScheme
+                                                                    .white),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    TextFormField(
+                                                      enabled: uc != null,
+                                                      controller:
+                                                          ucExceptionController,
+                                                      decoration:
+                                                          const InputDecoration(
+                                                        border:
+                                                            OutlineInputBorder(),
+                                                        labelText:
+                                                            "New Exception Flow",
+                                                        labelStyle: TextStyle(
+                                                            color:
+                                                                UCMColorScheme
+                                                                    .white),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            const VerticalDivider(
+                                              color: UCMColorScheme.darkGray,
+                                              thickness: 20,
+                                            ),
+                                            Expanded(
+                                              flex: 3,
+                                              child: Column(
+                                                children: [
+                                                  curUC == ""
+                                                      ? const Placeholder()
+                                                      : Builder(
+                                                          builder: (context) {
+                                                          final buff =
+                                                              StringBuffer();
+                                                          buff.write(
+                                                              "Use Case: ${uc?.title ?? ""}\n");
+                                                          buff.write(
+                                                              "Process: ${uc?.processName ?? ""}\n");
+                                                          buff.write(
+                                                              "Current Flow: ${uc?.currentFlow.title}\n");
+                                                          buff.write(
+                                                              "Steps:\n");
+                                                          int dex = 0;
+                                                          uc?.currentFlowSteps
+                                                              .forEach((step) {
+                                                            buff.write(
+                                                                "\t\t\t\t\t$dex. $step");
+                                                            dex++;
                                                           });
-                                                    }),
-                                            //const Divider(thickness: 10),
-                                            const Expanded(
-                                              flex: 2,
-                                              child: Row(
-                                                children: [],
+                                                          return RichText(
+                                                            text: TextSpan(
+                                                              text: buff
+                                                                  .toString(),
+                                                              style: const TextStyle(
+                                                                  fontSize: 20,
+                                                                  color:
+                                                                      UCMColorScheme
+                                                                          .white),
+                                                            ),
+                                                          );
+                                                        }),
+                                                  //const Divider(thickness: 10),
+                                                  // const Expanded(
+                                                  //   flex: 2,
+                                                  //   child: Row(
+                                                  //     children: [],
+                                                  //   ),
+                                                  // )
+                                                ],
                                               ),
                                             )
                                           ],
                                         ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                const Divider(
-                                  color: UCMColorScheme.darkGray,
-                                  thickness: 20,
-                                ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceAround,
-                                          children: [
-                                            const Expanded(
-                                              child: Text(
-                                                "Toggle Flow",
-                                                style: TextStyle(
-                                                  color: UCMColorScheme.white,
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 30,
-                                                ),
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                children: [
-                                                  ElevatedButton(
-                                                    onPressed: () {},
-                                                    style: ButtonStyle(
-                                                      backgroundColor:
-                                                          const MaterialStatePropertyAll(
-                                                              UCMColorScheme
-                                                                  .roseRed),
-                                                      shape:
-                                                          MaterialStatePropertyAll(
-                                                        RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(5),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    child: const Text(
-                                                      "Prev",
-                                                      style: TextStyle(
-                                                          color: UCMColorScheme
-                                                              .white),
-                                                    ),
-                                                  ),
-                                                  ElevatedButton(
-                                                      onPressed: () {},
-                                                      style: ButtonStyle(
-                                                        backgroundColor:
-                                                            const MaterialStatePropertyAll(
-                                                                UCMColorScheme
-                                                                    .roseRed),
-                                                        shape:
-                                                            MaterialStatePropertyAll(
-                                                          RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        5),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      child: const Text(
-                                                        "Next",
-                                                        style: TextStyle(
-                                                            color:
-                                                                UCMColorScheme
-                                                                    .white),
-                                                      ))
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
                                       ),
-                                      const VerticalDivider(
+                                      const Divider(
                                         color: UCMColorScheme.darkGray,
                                         thickness: 20,
                                       ),
                                       Expanded(
-                                        child: Column(
+                                        flex: 2,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
                                           children: [
-                                            const Expanded(
-                                              child: Text(
-                                                "Toggle Step",
-                                                style: TextStyle(
-                                                  color: UCMColorScheme.white,
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 30,
-                                                ),
-                                              ),
-                                            ),
                                             Expanded(
-                                              child: Row(
+                                              child: Column(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment
-                                                        .spaceEvenly,
+                                                        .spaceAround,
                                                 children: [
-                                                  ElevatedButton(
-                                                      onPressed: () {},
-                                                      style: ButtonStyle(
-                                                        backgroundColor:
-                                                            const MaterialStatePropertyAll(
-                                                                UCMColorScheme
-                                                                    .roseRed),
-                                                        shape:
-                                                            MaterialStatePropertyAll(
-                                                          RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        5),
+                                                  const Expanded(
+                                                    child: Text(
+                                                      "Toggle Flow",
+                                                      style: TextStyle(
+                                                        color: UCMColorScheme
+                                                            .white,
+                                                        fontWeight:
+                                                            FontWeight.w700,
+                                                        fontSize: 30,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceEvenly,
+                                                      children: [
+                                                        ElevatedButton(
+                                                          onPressed: () {
+                                                            uc?.prevFlow();
+                                                            setState(() {
+                                                              useCase = uc;
+                                                            });
+                                                          },
+                                                          style: ButtonStyle(
+                                                            backgroundColor:
+                                                                const MaterialStatePropertyAll(
+                                                                    UCMColorScheme
+                                                                        .roseRed),
+                                                            shape:
+                                                                MaterialStatePropertyAll(
+                                                              RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            5),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          child: const Text(
+                                                            "Prev",
+                                                            style: TextStyle(
+                                                                color:
+                                                                    UCMColorScheme
+                                                                        .white),
                                                           ),
                                                         ),
-                                                      ),
-                                                      child: const Text(
-                                                        "Prev",
-                                                        style: TextStyle(
-                                                            color:
-                                                                UCMColorScheme
-                                                                    .white),
-                                                      )),
-                                                  ElevatedButton(
-                                                      onPressed: () {},
-                                                      style: ButtonStyle(
-                                                        backgroundColor:
-                                                            const MaterialStatePropertyAll(
-                                                                UCMColorScheme
-                                                                    .roseRed),
-                                                        shape:
-                                                            MaterialStatePropertyAll(
-                                                          RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        5),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      child: const Text(
-                                                        "Next",
-                                                        style: TextStyle(
-                                                            color:
-                                                                UCMColorScheme
-                                                                    .white),
-                                                      )),
+                                                        ElevatedButton(
+                                                            onPressed: () {
+                                                              uc?.nextFlow();
+                                                              setState(() {
+                                                                useCase = uc;
+                                                              });
+                                                            },
+                                                            style: ButtonStyle(
+                                                              backgroundColor:
+                                                                  const MaterialStatePropertyAll(
+                                                                      UCMColorScheme
+                                                                          .roseRed),
+                                                              shape:
+                                                                  MaterialStatePropertyAll(
+                                                                RoundedRectangleBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              5),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            child: const Text(
+                                                              "Next",
+                                                              style: TextStyle(
+                                                                  color:
+                                                                      UCMColorScheme
+                                                                          .white),
+                                                            ))
+                                                      ],
+                                                    ),
+                                                  ),
                                                 ],
                                               ),
                                             ),
+                                            // const VerticalDivider(
+                                            //   color: UCMColorScheme.darkGray,
+                                            //   thickness: 20,
+                                            // ),
+                                            // Expanded(
+                                            //   child: Column(
+                                            //     children: [
+                                            //       const Expanded(
+                                            //         child: Text(
+                                            //           "Toggle Step",
+                                            //           style: TextStyle(
+                                            //             color: UCMColorScheme.white,
+                                            //             fontWeight: FontWeight.w700,
+                                            //             fontSize: 30,
+                                            //           ),
+                                            //         ),
+                                            //       ),
+                                            //       Expanded(
+                                            //         child: Row(
+                                            //           mainAxisAlignment:
+                                            //               MainAxisAlignment
+                                            //                   .spaceEvenly,
+                                            //           children: [
+                                            //             ElevatedButton(
+                                            //                 onPressed: () {},
+                                            //                 style: ButtonStyle(
+                                            //                   backgroundColor:
+                                            //                       const MaterialStatePropertyAll(
+                                            //                           UCMColorScheme
+                                            //                               .roseRed),
+                                            //                   shape:
+                                            //                       MaterialStatePropertyAll(
+                                            //                     RoundedRectangleBorder(
+                                            //                       borderRadius:
+                                            //                           BorderRadius
+                                            //                               .circular(
+                                            //                                   5),
+                                            //                     ),
+                                            //                   ),
+                                            //                 ),
+                                            //                 child: const Text(
+                                            //                   "Prev",
+                                            //                   style: TextStyle(
+                                            //                       color:
+                                            //                           UCMColorScheme
+                                            //                               .white),
+                                            //                 )),
+                                            //             ElevatedButton(
+                                            //                 onPressed: () {},
+                                            //                 style: ButtonStyle(
+                                            //                   backgroundColor:
+                                            //                       const MaterialStatePropertyAll(
+                                            //                           UCMColorScheme
+                                            //                               .roseRed),
+                                            //                   shape:
+                                            //                       MaterialStatePropertyAll(
+                                            //                     RoundedRectangleBorder(
+                                            //                       borderRadius:
+                                            //                           BorderRadius
+                                            //                               .circular(
+                                            //                                   5),
+                                            //                     ),
+                                            //                   ),
+                                            //                 ),
+                                            //                 child: const Text(
+                                            //                   "Next",
+                                            //                   style: TextStyle(
+                                            //                       color:
+                                            //                           UCMColorScheme
+                                            //                               .white),
+                                            //                 )),
+                                            //           ],
+                                            //         ),
+                                            //       ),
+                                            //     ],
+                                            //   ),
+                                            // )
                                           ],
                                         ),
                                       )
                                     ],
-                                  ),
-                                )
-                              ],
-                            );
+                                  );
+                                });
                           });
                     });
               }),
