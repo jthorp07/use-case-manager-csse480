@@ -4,6 +4,7 @@ import 'package:use_case_manager/components/color_scheme.dart';
 import 'package:use_case_manager/managers/use_case_collection_manager.dart';
 import 'package:use_case_manager/managers/use_case_document_manager.dart';
 import 'package:use_case_manager/model/use_case.dart';
+import 'package:use_case_manager/model/use_case_flow.dart';
 
 class UseCaseControl extends StatefulWidget {
   const UseCaseControl({super.key});
@@ -45,6 +46,8 @@ class _UseCaseControlState extends State<UseCaseControl> {
                           builder: (context, flowSnaps) {
                             uc?.setFlow = flowSnaps.data ?? [];
                             uc?.sortFlows();
+                            UseCaseDocumentMngr.instance
+                                .selectFlow(uc?.currentFlow.documentId ?? "");
                             final ucNameController =
                                 TextEditingController(text: uc?.title);
                             final ucProcessController =
@@ -99,9 +102,7 @@ class _UseCaseControlState extends State<UseCaseControl> {
                                                             .updateUseCase(
                                                                 docId: uc!
                                                                     .documentId!,
-                                                                title:
-                                                                    ucNameController
-                                                                        .text,
+                                                                title: newName,
                                                                 processName: uc
                                                                     .processName);
                                                       },
@@ -139,8 +140,7 @@ class _UseCaseControlState extends State<UseCaseControl> {
                                                                     .documentId!,
                                                                 title: uc.title,
                                                                 processName:
-                                                                    ucProcessController
-                                                                        .text);
+                                                                    newProcName);
                                                       },
                                                       controller:
                                                           ucProcessController,
@@ -161,6 +161,22 @@ class _UseCaseControlState extends State<UseCaseControl> {
                                                     ),
                                                     TextFormField(
                                                       enabled: uc != null,
+                                                      style: const TextStyle(
+                                                          color: UCMColorScheme
+                                                              .white),
+                                                      onFieldSubmitted:
+                                                          (stepName) {
+                                                        UseCaseDocumentMngr
+                                                            .instance
+                                                            .addFlowStep(
+                                                          step: stepName,
+                                                          index: uc!
+                                                              .currentFlowSteps
+                                                              .length,
+                                                        );
+                                                        ucStepController
+                                                            .clear();
+                                                      },
                                                       controller:
                                                           ucStepController,
                                                       decoration:
@@ -179,6 +195,19 @@ class _UseCaseControlState extends State<UseCaseControl> {
                                                     ),
                                                     TextFormField(
                                                       enabled: uc != null,
+                                                      style: const TextStyle(
+                                                          color: UCMColorScheme
+                                                              .white),
+                                                      onFieldSubmitted:
+                                                          (alternateFlowName) {
+                                                        UseCaseDocumentMngr
+                                                            .instance
+                                                            .addFlow(
+                                                                type: FlowType
+                                                                    .alternate,
+                                                                name:
+                                                                    alternateFlowName);
+                                                      },
                                                       controller:
                                                           ucAlternateController,
                                                       decoration:
@@ -199,8 +228,21 @@ class _UseCaseControlState extends State<UseCaseControl> {
                                                     ),
                                                     TextFormField(
                                                       enabled: uc != null,
+                                                      style: const TextStyle(
+                                                          color: UCMColorScheme
+                                                              .white),
                                                       controller:
                                                           ucExceptionController,
+                                                      onFieldSubmitted:
+                                                          (exceptionFlowName) {
+                                                        UseCaseDocumentMngr
+                                                            .instance
+                                                            .addFlow(
+                                                                type: FlowType
+                                                                    .exception,
+                                                                name:
+                                                                    exceptionFlowName);
+                                                      },
                                                       decoration:
                                                           const InputDecoration(
                                                         border:

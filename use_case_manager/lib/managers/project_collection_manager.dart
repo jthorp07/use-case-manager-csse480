@@ -32,7 +32,9 @@ class ProjectCollectionManager {
 
   void delete({required String docId}) {
     _ref.doc(docId).delete();
-    UseCaseCollectionMngr.instance.getAllCasesFromParent(docId: docId).forEach((useCaseList) {
+    UseCaseCollectionMngr.instance
+        .getAllCasesFromParent(docId: docId)
+        .forEach((useCaseList) {
       for (UseCase uc in useCaseList) {
         UseCaseDocumentMngr.instance.removeUseCase(docId: uc.documentId!);
       }

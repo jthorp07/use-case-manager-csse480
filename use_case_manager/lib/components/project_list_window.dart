@@ -45,6 +45,10 @@ class _ProjectListState extends State<ProjectList> {
                             Navigator.of(context1).pushNamed("/use_cases");
                           });
                         },
+                        onLongPress: () {
+                          ProjectCollectionManager.instance
+                              .delete(docId: widget.projects[n].documentId!);
+                        },
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5)),
                         tileColor: UCMColorScheme.babyGray,

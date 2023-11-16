@@ -40,17 +40,6 @@ class UCMDrawer extends StatelessWidget {
               navigateHome();
             },
           ),
-          ListTile(
-            title: const Text(
-              "My First Project",
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            leading: const Icon(Icons.home_repair_service),
-            onTap: () {
-              Navigator.of(context).pop();
-              navigateToProject();
-            },
-          ),
           const Spacer(),
           const Divider(
             thickness: 2.0,

@@ -64,7 +64,8 @@ class UseCaseDocumentMngr {
       {required String docId,
       required String title,
       required String processName}) async {
-    if (await UseCaseCollectionMngr.instance.hasUseCase(title: title)) {
+    if (await UseCaseCollectionMngr.instance
+        .hasUseCase(title: title, docId: docId)) {
       return false;
     }
     _ucRef.doc(docId).update({
@@ -126,11 +127,12 @@ class UseCaseDocumentMngr {
   }
 
   // Flow methods
-  void addFlow({required FlowType type, required String name}) async {
+  void addFlow(
+      {required FlowType type, required String name, String? parentId}) async {
     _flowRef.add({
       fsFlows_FlowName: name,
       fsFlows_FlowType: type.toString(),
-      fsParentId: _selectedUseCase
+      fsParentId: parentId ?? _selectedUseCase.value
     });
   }
 
@@ -190,7 +192,7 @@ class UseCaseDocumentMngr {
     _flowStepRef.add({
       fsFlowSteps_Index: index,
       fsFlowSteps_Step: step,
-      fsParentId: _selectedFlow
+      fsParentId: _selectedFlow.value
     });
   }
 

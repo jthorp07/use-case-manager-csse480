@@ -4,6 +4,7 @@ import 'package:use_case_manager/managers/auth_manager.dart';
 import 'package:use_case_manager/managers/project_collection_manager.dart';
 import 'package:use_case_manager/managers/use_case_document_manager.dart';
 import 'package:use_case_manager/model/use_case.dart';
+import 'package:use_case_manager/model/use_case_flow.dart';
 
 const fsUseCase_Collection = "UseCases";
 const fsUseCase_Actors = "actors";
@@ -24,13 +25,16 @@ class UseCaseCollectionMngr {
         fsUseCase_Title: title,
         fsUseCase_ProcessName: processName,
         fsParentId: ProjectCollectionManager.instance.selectedId,
+      }).then((value) {
+        UseCaseDocumentMngr.instance.addFlow(
+            type: FlowType.basic, name: "Basic Flow", parentId: value.id);
       });
       return true;
     }
     return false;
   }
 
-  Future<bool> hasUseCase({required String title}) async {
+  Future<bool> hasUseCase({required String title, String docId = ""}) async {
     return _ref
         .where(fsParentId,
             isEqualTo: ProjectCollectionManager.instance.selectedId)
@@ -42,7 +46,7 @@ class UseCaseCollectionMngr {
         .get()
         .then(
       (value) {
-        return value.size > 0;
+        return value.size > 0 && value.docs.first.id != docId;
       },
     );
   }

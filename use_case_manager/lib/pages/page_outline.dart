@@ -50,7 +50,11 @@ class _PageOutlineState extends State<PageOutline> {
         child: widget.child,
       ),
       backgroundColor: UCMColorScheme.lightGray,
-      drawer: UCMDrawer(navigateHome: () {}, navigateToProject: () {}),
+      drawer: UCMDrawer(
+          navigateHome: () {
+            Navigator.of(context).pop();
+          },
+          navigateToProject: () {}),
     );
   }
 }
